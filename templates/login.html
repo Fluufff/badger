@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ generic.name }} - login</title>
+</head>
+<body>
+    <h1>log in</h1>
+     <form action="/login" method="post">
+        <label for="user">Nickname or email:</label>
+        <input type="text" id="user" name="user" value="{{ lastuser.clone().unwrap_or_default() }}"><br><br>
+        <label for="pass">Pass:</label>
+        <input type="password" id="pass" name="password" value="{{ lastpass.clone().unwrap_or_default() }}"><br><br>
+        <input type="submit" value="Submit">
+    </form> 
+</body>
+</html>
