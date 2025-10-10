@@ -10,7 +10,7 @@ pub enum StuffState {
     Unknown,
 }
 
-#[derive(strum::Display, Debug)]
+#[derive(strum::Display, Debug, strum::EnumIs)]
 pub enum BoolState {
     No,
     Yes,
@@ -30,6 +30,10 @@ pub struct UserEntry {
     pub staff: BoolState,
     pub avatar: String,
     pub has_avatar: BoolState,
+    pub fursuit_name: Option<String>,
+    pub fursuit_species: Option<String>,
+    pub fursuit_avatar: String,
+    pub has_fursuit_avatar: BoolState,
 }
 
 #[derive(Template)]

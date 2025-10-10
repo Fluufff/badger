@@ -98,3 +98,10 @@ impl LayersConfig {
         Pt(self.nick_y_pt)
     }
 }
+
+#[derive(sqlx::FromRow, Debug)]
+pub struct FursuitAnswer {
+    pub regnumber: i32,
+    pub name: String,
+    pub value: String,
+}

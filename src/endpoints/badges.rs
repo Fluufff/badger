@@ -134,6 +134,87 @@ impl BadgePDF {
         Ok(())
     }
 
+    pub fn add_fursuit(&mut self, user: &UserEntry) -> Result<(), AppError> {
+        let mut ops = Vec::new();
+        for layer in self.layers.iter() {
+            if layer.layer.asset_path == "badge" {
+                let img = fs::read(&user.fursuit_avatar).unwrap();
+                let img = RawImage::decode_from_bytes(img.as_bytes(), &mut Vec::new()).unwrap();
+                let id = self.doc.add_image(&img);
+                ops.push(Op::UseXobject {
+                    id,
+                    transform: XObjectTransform {
+                        translate_x: Some(Pt((self.config.page_width().into_pt()
+                            - self.config.avatar_size())
+                        .0 / 2.0)),
+                        translate_y: Some(self.config.avatar_y()),
+                        rotate: None,
+                        scale_x: Some(
+                            self.config.avatar_size().0 / Px(img.width).into_pt(self.config.dpi).0,
+                        ),
+                        scale_y: Some(
+                            self.config.avatar_size().0 / Px(img.height).into_pt(self.config.dpi).0,
+                        ),
+                        dpi: Some(300.0),
+                    },
+                });
+            } else {
+                ops.push(Op::UseXobject {
+                    id: layer.id.clone().unwrap(),
+                    transform: Default::default(),
+                })
+            }
+        }
+
+        let options = TextShapingOptions {
+            font_size: self.config.regnum_size(),
+            ..Default::default()
+        };
+        let shaped_text = self
+            .doc
+            .shape_text(
+                &format!(
+                    "{}",
+                    user.fursuit_species
+                        .as_ref()
+                        .unwrap_or(&"unknown".to_owned())
+                ),
+                &self.font,
+                &options,
+            )
+            .unwrap();
+        let text_drawing_ops = shaped_text.get_ops(Point {
+            x: self.config.regnum_x(),
+            y: self.config.regnum_y(),
+        });
+        ops.extend_from_slice(&text_drawing_ops);
+
+        let options = TextShapingOptions {
+            font_size: self.config.nick_size(),
+            max_width: Some(self.config.page_width().into_pt()),
+            align: TextAlign::Center,
+            ..Default::default()
+        };
+        let shaped_text = self
+            .doc
+            .shape_text(
+                user.fursuit_name.as_ref().unwrap_or(&"unknown".to_owned()),
+                &self.font,
+                &options,
+            )
+            .unwrap();
+        let text_drawing_ops = shaped_text.get_ops(Point {
+            x: Pt(0.0),
+            y: self.config.nick_y(),
+        });
+        ops.extend_from_slice(&text_drawing_ops);
+
+        let page = PdfPage::new(self.config.page_width(), self.config.page_height(), ops);
+        self.pages.push(page);
+
+        Ok(())
+    }
+
     pub fn print(mut self) -> Vec<u8> {
         self.doc
             .with_pages(self.pages)

@@ -19,25 +19,47 @@
     <table id="badges">
         <thead>
             <tr>
-                <th></th>
                 <th>#</th>
+                <th>attendee</th>
+                <th>fursuit</th>
                 <th>name</th>
                 <th>ticket</th>
                 <th>sponsor</th>
                 <th>staff</th>
                 <th>avatar</th>
+                <th>fursuit</th>
             </tr>
         </thead>
         <tbody>
             {% for user in users %}
             <tr>
-                <td><input type="checkbox" name="{{ user.regnumber }}" onclick="update_selected()"></td>
                 <td>{{ user.regnumber }}</td>
+                <td><input type="checkbox" name="user_{{ user.regnumber }}" onclick="this.parentElement.nextElementSibling.children[0].checked=this.checked;update_selected()"></td>
+                <td>
+                    {%- if user.fursuit_name.is_some() && user.fursuit_species.is_some() -%}
+                    <input type="checkbox" name="fursuit_{{ user.regnumber }}" onclick="update_selected()"></td>
+                    {%- endif -%}
                 <td>{{ user.nickname }}</td>
                 <td class="{{ user.ticket.to_string() }}">{{ user.ticket.to_string() }}</td>
                 <td class="{{ user.sponsor.to_string() }}">{{ user.sponsor.to_string() }}</td>
                 <td class="{{ user.staff.to_string() }}">{{ user.staff.to_string() }}</td>
                 <td class="{{ user.has_avatar.to_string() }}">{{ user.has_avatar.to_string() }}</td>
+                <td {% if user.fursuit_name.is_some() || user.fursuit_species.is_some() || user.has_fursuit_avatar.is_yes() -%}
+                        {%- if user.fursuit_name.is_some() && user.fursuit_species.is_some() && user.has_fursuit_avatar.is_yes() -%}
+                        class="Paid"
+                        {% else -%}
+                        class="Unpaid"
+                        {%- endif -%}
+                    {%- endif -%}
+                >
+                    {%- if user.fursuit_name.is_some() || user.fursuit_species.is_some() || user.has_fursuit_avatar.is_yes() -%}
+                        {%- if user.fursuit_name.is_some() && user.fursuit_species.is_some() && user.has_fursuit_avatar.is_yes() -%}
+                        Ok
+                        {% else -%}
+                        Incomplete
+                        {%- endif -%}
+                    {%- endif -%}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
