@@ -73,7 +73,7 @@ async fn main() -> Result<(), AppError> {
         )
         .route(
             "/login",
-            get(endpoints::login_handler).post(endpoints::login_handler),
+            get(endpoints::auth::login_handler).post(endpoints::auth::login_handler),
         )
         .with_state(Arc::new(state));
 

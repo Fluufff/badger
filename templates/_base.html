@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badger - {% block title %}{% endblock %}</title>
+    <style>
+        {%~ include "_base.css" ~%}
+        {% block extracss %}{% endblock %}
+    </style>
+    <script>
+        {%~ include "_base.js" ~%}
+        {% block extrajs %}{% endblock %}
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Badger</h1>
+        <p>{{ auth.sub }}</p>
+        <a href="/logout">Log out</a>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="/">print badges</a></li>
+            <li><a href="/config">badge designer</a></li>
+        </ul>
+    </nav>
+    <main>{%~ block content %}{% endblock ~%}</main>
+</body>
+</html>

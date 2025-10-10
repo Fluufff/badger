@@ -1,0 +1,50 @@
+{% extends "_base.html" %}
+
+{%- block title -%}users{%- endblock -%}
+{%- block extracss -%}{%~ include "main.css" ~%}{%- endblock -%}
+{%- block extrajs -%}{%~ include "main.js" ~%}{%- endblock -%}
+
+{%- block content -%}
+<form action="/" method="post">
+    <section>
+        <input type="submit" value="Print">
+        <input type="text" id="filter" placeholder="search..." oninput="filter_users(this.value)">
+        <button type="button" onclick="select_none()">select none</button>
+        <button type="button" onclick="select_tickets(true)">+ paid tickets</button>
+        <button type="button" onclick="select_tickets(false)">+ paid and unpaid tickets</button>
+        <button type="button" onclick="select_sponsors(true)">+ paid sponsors</button>
+        <button type="button" onclick="select_sponsors(false)">+ paid and unpaid sponsors</button>
+        <button type="button" onclick="deselect_noavatar()">- missing an avatar</button>
+    </section>
+    <table id="badges">
+        <thead>
+            <tr>
+                <th></th>
+                <th>#</th>
+                <th>name</th>
+                <th>ticket</th>
+                <th>sponsor</th>
+                <th>staff</th>
+                <th>avatar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td><input type="checkbox" name="{{ user.regnumber }}" onclick="update_selected()"></td>
+                <td>{{ user.regnumber }}</td>
+                <td>{{ user.nickname }}</td>
+                <td class="{{ user.ticket.to_string() }}">{{ user.ticket.to_string() }}</td>
+                <td class="{{ user.sponsor.to_string() }}">{{ user.sponsor.to_string() }}</td>
+                <td class="{{ user.staff.to_string() }}">{{ user.staff.to_string() }}</td>
+                <td class="{{ user.has_avatar.to_string() }}">{{ user.has_avatar.to_string() }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</form>
+<script>
+    filter_users(document.querySelector("#filter").value);
+    update_selected();
+</script>
+{%- endblock -%}

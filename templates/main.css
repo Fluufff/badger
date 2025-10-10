@@ -1,0 +1,19 @@
+table {
+    border-collapse: collapse;
+}
+table th, table td {
+    border: 1px solid black;
+    padding: 5px;
+}
+table td.Paid, table td.Yes {
+    background-color: #a9ffba;
+}
+table td.Unpaid {
+    background-color: #ffa9a9;
+}
+table td.Unknown {
+    background-color: #d4d4d4;
+}
+table tr:nth-child(even) {
+    background-color: rgb(240, 243, 255);
+}

@@ -31,4 +31,6 @@ services:
     - .common.env
     - .db.env
     volumes:
-    - ./mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql
+    - ./mariadb:/docker-entrypoint-initdb.d
+    - type: tmpfs
+      target: /var/lib/mysql
