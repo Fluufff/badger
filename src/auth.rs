@@ -13,6 +13,7 @@ pub enum LoginResult {
     WrongPass,
     MissingMFA,
     WrongMFA,
+    NotStaff,
     Authenticated(String, Claims),
 }
 
@@ -48,6 +49,15 @@ pub async fn plz_gib_token(
                 return Ok(LoginResult::WrongMFA);
             }
         }
+    }
+
+    let staff_row = sqlx::query("select users.nick, rooms.name from rooms_booking as rb left join rooms on rb.tid = rooms.tid left join users on users.regnumber=rb.regnumber where rooms.name='Staff' and users.email = ? or users.nick = ? order by rb.rbid asc;")
+            .bind(user)
+            .bind(user).fetch_optional(&state.db).await
+            .map_err(AppError::Db)?;
+
+    if staff_row.is_none() {
+        return Ok(LoginResult::NotStaff);
     }
 
     let exp = (chrono::Utc::now() + chrono::Duration::hours(24)).timestamp() as usize;
