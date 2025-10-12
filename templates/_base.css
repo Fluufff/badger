@@ -1,3 +1,6 @@
+html, body {
+    margin: 0;
+}
 body {
     display: grid;
     grid-template-columns: auto 1fr;
@@ -9,13 +12,22 @@ body {
 body > header {
     grid-area: header;
     display: grid;
-    justify-content: center;
+    align-items: center;
     grid-template-columns: 1fr auto auto;
+    margin: 10px;
+    gap: 10px;
+}
+body > header p {
+    margin: 0;
+}
+body > header h1 {
+    margin: 0;
 }
 body > nav {
     grid-area: nav;
     display: grid;
     grid-template-rows: 1fr auto;
+    margin: 10px;
 }
 body > nav > ul {
     list-style: none;

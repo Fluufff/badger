@@ -1,32 +1,40 @@
 const badge_rows = () => Array.from(document.querySelectorAll("table#badges > tbody > tr"));
 const get_checkbox = tr => Array.from(tr.querySelectorAll('input[type="checkbox"'));
 
-const select_none = () => {
-    badge_rows().forEach(tr => get_checkbox(tr).forEach(cb => cb.checked = false));
+const select_all = (add = true) => {
+    badge_rows().forEach(tr => get_checkbox(tr).forEach(cb => cb.checked = add));
     update_selected();
 }
 
-const select_tickets = (paid_only = true) => {
+const select_tickets = (paid = true, add = true) => {
     badge_rows().filter(tr => {
         let c = tr.children[4].className;
-        return c == "Paid" || (!paid_only && (c == "Unpaid" || c == "Unknown"));
-    }).forEach(tr => get_checkbox(tr).forEach(cb => cb.checked = true));
+        return paid ? c == "Paid" : c == "Unpaid" || c == "Unknown";
+    }).forEach(tr => get_checkbox(tr).forEach(cb => cb.checked = add));
     update_selected();
 }
 
-const select_sponsors = (paid_only = true) => {
+const select_sponsors = (paid = true, add = true) => {
     badge_rows().filter(tr => {
         let c = tr.children[5].className;
-        return c == "Paid" || (!paid_only && (c == "Unpaid" || c == "Unknown"));
-    }).forEach(tr => get_checkbox(tr).forEach(cb => cb.checked = true));
+        return paid ? c == "Paid" : c == "Unpaid" || c == "Unknown";
+    }).forEach(tr => get_checkbox(tr).forEach(cb => cb.checked = add));
     update_selected();
 }
 
-const deselect_noavatar = () => {
+const select_avatar = (add = true) => {
     badge_rows().filter(tr => {
         let c = tr.children[7].className;
-        return c == "No";
-    }).forEach(tr => get_checkbox(tr).forEach(cb => cb.checked = false));
+        return add ? c == "Yes" : c == "No";
+    }).forEach(tr => get_checkbox(tr).forEach(cb => cb.checked = add));
+    update_selected();
+}
+
+const select_fursuits = (ok = true, add = true) => {
+    badge_rows().filter(tr => {
+        let c = tr.children[8].className;
+        return ok ? c == "Paid" : c == "Unpaid" || c == "Unknown";
+    }).forEach(tr => get_checkbox(tr).forEach(cb => cb.checked = add));
     update_selected();
 }
 

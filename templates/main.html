@@ -5,16 +5,59 @@
 {%- block extrajs -%}{%~ include "main.js" ~%}{%- endblock -%}
 
 {%- block content -%}
-<form action="/" method="post">
-    <section>
+<form action="/" method="post" class="vertical">
+    <div class="horizontal">
         <input type="submit" value="Print">
-        <input type="text" id="filter" placeholder="search..." oninput="filter_users(this.value)">
-        <button type="button" onclick="select_none()">select none</button>
-        <button type="button" onclick="select_tickets(true)">+ paid tickets</button>
-        <button type="button" onclick="select_tickets(false)">+ paid and unpaid tickets</button>
-        <button type="button" onclick="select_sponsors(true)">+ paid sponsors</button>
-        <button type="button" onclick="select_sponsors(false)">+ paid and unpaid sponsors</button>
-        <button type="button" onclick="deselect_noavatar()">- missing an avatar</button>
+        <input type="text" class="flex" id="filter" placeholder="search..." oninput="filter_users(this.value)">
+    </div>
+    <section class="horizontal">
+        <div class="option-box">
+            <p>all</p>
+            <p>
+                <button type="button" onclick="select_all(true)">+</button>
+                <button type="button" onclick="select_all(false)">-</button>
+            </p>
+        </div>
+        <div class="option-box">
+            <p>tickets</p>
+            <p>
+                <button type="button" onclick="select_tickets(true, true)">+ paid</button>
+                <button type="button" onclick="select_tickets(true, false)">- paid</button>
+            </p>
+            <p>
+                <button type="button" onclick="select_tickets(false, true)">+ unpaid</button>
+                <button type="button" onclick="select_tickets(false, false)">- unpaid</button>
+            </p>
+        </div>
+        <div class="option-box">
+            <p>sponsors</p>
+            <p>
+                <button type="button" onclick="select_sponsors(true, true)">+ paid</button>
+                <button type="button" onclick="select_sponsors(true, false)">- paid</button>
+            </p>
+            <p>
+                <button type="button" onclick="select_sponsors(false, true)">+ unpaid</button>
+                <button type="button" onclick="select_sponsors(false, false)">- unpaid</button>
+            </p>
+        </div>
+        <div class="option-box">
+            <p>avatar</p>
+            <p>
+                <button type="button" onclick="select_avatar(true)">+ set</button>
+                <button type="button" onclick="select_avatar(false)">- unset</button>
+            </p>
+        </div>
+        <div class="option-box">
+            <p>fursuit</p>
+            <p>
+                <button type="button" onclick="select_fursuits(true, true)">+ Ok</button>
+                <button type="button" onclick="select_fursuits(true, false)">- Ok</button>
+            </p>
+            <p>
+                <button type="button" onclick="select_fursuits(false, true)">+ incomplete</button>
+                <button type="button" onclick="select_fursuits(false, false)">- incomplete</button>
+            </p>
+        </div>
     </section>
     <table id="badges">
         <thead>
@@ -34,30 +77,35 @@
             {% for user in users %}
             <tr>
                 <td>{{ user.regnumber }}</td>
-                <td><input type="checkbox" name="user_{{ user.regnumber }}" onclick="this.parentElement.nextElementSibling.children[0].checked=this.checked;update_selected()"></td>
+                <td><input type="checkbox" name="user_{{ user.regnumber }}"
+                        onclick="
+                            {%- if user.fursuit_name.is_some() && user.fursuit_species.is_some() -%}
+                            this.parentElement.nextElementSibling.children[0].checked=this.checked;
+                            {%- endif -%}
+                            update_selected()">
+                </td>
                 <td>
                     {%- if user.fursuit_name.is_some() && user.fursuit_species.is_some() -%}
-                    <input type="checkbox" name="fursuit_{{ user.regnumber }}" onclick="update_selected()"></td>
+                    <input type="checkbox" name="fursuit_{{ user.regnumber }}" onclick="update_selected()">
                     {%- endif -%}
+                </td>
                 <td>{{ user.nickname }}</td>
                 <td class="{{ user.ticket.to_string() }}">{{ user.ticket.to_string() }}</td>
                 <td class="{{ user.sponsor.to_string() }}">{{ user.sponsor.to_string() }}</td>
                 <td class="{{ user.staff.to_string() }}">{{ user.staff.to_string() }}</td>
                 <td class="{{ user.has_avatar.to_string() }}">{{ user.has_avatar.to_string() }}</td>
-                <td {% if user.fursuit_name.is_some() || user.fursuit_species.is_some() || user.has_fursuit_avatar.is_yes() -%}
-                        {%- if user.fursuit_name.is_some() && user.fursuit_species.is_some() && user.has_fursuit_avatar.is_yes() -%}
-                        class="Paid"
-                        {% else -%}
-                        class="Unpaid"
-                        {%- endif -%}
+                <td {% if user.fursuit_name.is_some() || user.fursuit_species.is_some() ||
+                    user.has_fursuit_avatar.is_yes() -%} {%- if user.fursuit_name.is_some() &&
+                    user.fursuit_species.is_some() && user.has_fursuit_avatar.is_yes() -%} class="Paid" {% else -%}
+                    class="Unpaid" {%- endif -%} {%- endif -%}>
+                    {%- if user.fursuit_name.is_some() || user.fursuit_species.is_some() ||
+                    user.has_fursuit_avatar.is_yes() -%}
+                    {%- if user.fursuit_name.is_some() && user.fursuit_species.is_some() &&
+                    user.has_fursuit_avatar.is_yes() -%}
+                    Ok
+                    {% else -%}
+                    Incomplete
                     {%- endif -%}
-                >
-                    {%- if user.fursuit_name.is_some() || user.fursuit_species.is_some() || user.has_fursuit_avatar.is_yes() -%}
-                        {%- if user.fursuit_name.is_some() && user.fursuit_species.is_some() && user.has_fursuit_avatar.is_yes() -%}
-                        Ok
-                        {% else -%}
-                        Incomplete
-                        {%- endif -%}
                     {%- endif -%}
                 </td>
             </tr>

@@ -1,19 +1,41 @@
-table {
-    border-collapse: collapse;
+.horizontal {
+    display: flex;
+    gap: 10px;
 }
-table th, table td {
-    border: 1px solid black;
+.vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+p {
+    margin-top: 0;
+}
+.flex {
+    flex: 1;
+}
+.option-box {
+    padding: 10px;
+    border: 1px solid #bbb;
+    border-radius: 10px;
+}
+
+table#badges {
+    border-collapse: collapse;
+    display: block;
+}
+table#badges th, table td {
+    border: 1px solid #bbb;
     padding: 5px;
 }
-table td.Paid, table td.Yes {
+table#badges td.Paid, table td.Yes {
     background-color: #a9ffba;
 }
-table td.Unpaid {
+table#badges td.Unpaid {
     background-color: #ffa9a9;
 }
-table td.Unknown {
+table#badges td.Unknown {
     background-color: #d4d4d4;
 }
-table tr:nth-child(even) {
+table#badges tr:nth-child(even) {
     background-color: rgb(240, 243, 255);
 }

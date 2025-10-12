@@ -15,6 +15,7 @@ use axum::{
 use axum_extra::extract::CookieJar;
 use sqlx::{MySql, Pool};
 use std::{env, fs};
+use tracing::info;
 pub mod auth;
 pub mod badges;
 
@@ -32,18 +33,29 @@ pub async fn main_handler(
         return Ok((cookies, Html(r)).into_response());
     }
 
+    let total = data.len();
+    info!(total, "printing badges");
+
     let mut doc = badges::BadgePDF::init(&state.db, "Fluufff badges").await?;
 
+    let mut count_done = 0;
     for user in users {
         if let Some(v) = data.get(&format!("user_{}", &user.regnumber))
             && v == "on"
         {
+            info!(id = &user.regnumber, "{count_done}/{total} printing user");
             doc.add_user(&user).unwrap();
+            count_done += 1;
         }
         if let Some(v) = data.get(&format!("fursuit_{}", &user.regnumber))
             && v == "on"
         {
+            info!(
+                id = &user.regnumber,
+                "{count_done}/{total} printing fursuit"
+            );
             doc.add_fursuit(&user).unwrap();
+            count_done += 1;
         }
     }
 
