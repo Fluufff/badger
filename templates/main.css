@@ -30,7 +30,7 @@ table#badges th, table#badges td {
 table#badges td.Paid, table#badges td.Yes {
     background-color: #a9ffba;
 }
-table#badges td.Unpaid {
+table#badges td.Unpaid, table#badges td.No.red-no {
     background-color: #ffa9a9;
 }
 table#badges td.Unknown {

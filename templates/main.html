@@ -93,7 +93,7 @@
                 <td class="{{ user.ticket.to_string() }}">{{ user.ticket.to_string() }}</td>
                 <td class="{{ user.sponsor.to_string() }}">{{ user.sponsor.to_string() }}</td>
                 <td class="{{ user.staff.to_string() }}">{{ user.staff.to_string() }}</td>
-                <td class="{{ user.has_avatar.to_string() }}">{{ user.has_avatar.to_string() }}</td>
+                <td class="{{ user.has_avatar.to_string() }} red-no">{{ user.has_avatar.to_string() }}</td>
                 <td {% if user.fursuit_name.is_some() || user.fursuit_species.is_some() ||
                     user.has_fursuit_avatar.is_yes() -%} {%- if user.fursuit_name.is_some() &&
                     user.fursuit_species.is_some() && user.has_fursuit_avatar.is_yes() -%} class="Paid" {% else -%}
