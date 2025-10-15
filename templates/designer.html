@@ -1,0 +1,126 @@
+{% extends "_base.html" %}
+
+{%- block title -%}designer{%- endblock -%}
+{%- block extracss -%}{%~ include "designer.css" ~%}{%- endblock -%}
+{%- block extrajs -%}{%~ include "designer.js" ~%}{%- endblock -%}
+
+{%- block content -%}
+<form class="horizontal" action="" method="post" enctype="multipart/form-data">
+    <div class="option-box">
+        <p>page</p>
+        <p>
+            <span>width:</span>
+            <input type="number" name="page_width_mm" step="0.1" value="{{ config.page_width_mm }}">
+            <span>mm</span>
+        </p>
+        <p>
+            <span>height:</span>
+            <input type="number" name="page_height_mm" step="0.1" value="{{ config.page_height_mm }}">
+            <span>mm</span>
+        </p>
+        <p>
+            <span>DPI:</span>
+            <input type="number" name="dpi" value="{{ config.dpi }}">
+        </p>
+    </div>
+    <div class="option-box">
+        <p>avatar</p>
+        <p>
+            <span>size:</span>
+            <input type="number" name="avatar_size_pt" step="0.1" value="{{ config.avatar_size_pt }}">
+            <span>pt</span>
+        </p>
+        <p>
+            <span>y:</span>
+            <input type="number" name="avatar_y_pt" step="0.1" value="{{ config.avatar_y_pt }}">
+            <span>pt</span>
+        </p>
+    </div>
+    <div class="option-box">
+        <p>regnumber</p>
+        <p>
+            <span>size:</span>
+            <input type="number" name="regnum_size" step="0.1" value="{{ config.regnum_size }}">
+            <span>pt</span>
+        </p>
+        <p>
+            <span>x:</span>
+            <input type="number" name="regnum_x_pt" step="0.1" value="{{ config.regnum_x_pt }}">
+            <span>pt</span>
+        </p>
+        <p>
+            <span>y:</span>
+            <input type="number" name="regnum_y_pt" step="0.1" value="{{ config.regnum_y_pt }}">
+            <span>pt</span>
+        </p>
+    </div>
+    <div class="option-box">
+        <p>nickname</p>
+        <p>
+            <span>size:</span>
+            <input type="number" name="nick_size" step="0.1" value="{{ config.nick_size }}">
+            <span>pt</span>
+        </p>
+        <p>
+            <span>y:</span>
+            <input type="number" name="nick_y_pt" step="0.1" value="{{ config.nick_y_pt }}">
+            <span>pt</span>
+        </p>
+    </div>
+    <div class="option-box">
+        <p>font: <input type="file" name="file"></p>
+        <input type="submit" value="update">
+    </div>
+</form>
+<section class="table">
+    <section class="header">
+        <p></p>
+        <p>#</p>
+        <p>media</p>
+        <p>condition</p>
+        <p>comment</p>
+        <p></p>
+    </section>
+    {% for layer in layers %}
+    <form class="tr" action="" method="post" enctype="multipart/form-data">
+        <div>
+            <input type="hidden" name="row" value="{{ layer.id }}">
+            <input type="submit" name="action" value="↑" />
+            <input type="submit" name="action" value="↓" />
+            <input type="submit" name="action" value="x" />
+        </div>
+        <p>{{ layer.id }}</p>
+        <div>
+            {%- if layer.asset_path == "badge" %}badge
+            {%- else %}
+                <img src="{{ assets_dir }}/{{ layer.asset_path}}"><br>
+                <input type="file" name="file" accept="image/png, image/jpeg">
+            {%- endif %}
+        </div>
+        <div>
+            <select name="event_is">
+                <option value="true" {% if !layer.event_not %}selected{% endif %}>is</option>
+                <option value="false" {% if layer.event_not %}selected{% endif %}>is not</option>
+            </select>
+            <select name="event_name">
+                <option value="Any" {% if layer.event.is_any() %}selected{% endif %}>any</option>
+                <option value="User" {% if layer.event.is_user() %}selected{% endif %}>user</option>
+                <option value="Fursuit" {% if layer.event.is_fursuit() %}selected{% endif %}>fursuit</option>
+                <option value="Sponsor" {% if layer.event.is_sponsor() %}selected{% endif %}>sponsor</option>
+                <option value="Staff" {% if layer.event.is_staff() %}selected{% endif %}>staff</option>
+                <option value="Security" {% if layer.event.is_security() %}selected{% endif %}>security</option>
+                <option value="Medic" {% if layer.event.is_medic() %}selected{% endif %}>medic</option>
+            </select>
+        </div>
+        <div><input type="text" name="title" value="{{ layer.title }}"></div>
+        <div><input type="submit" name="action" value="update" /></div>
+    </form>
+    {% endfor %}
+    <form class="tr" action="" method="post" enctype="multipart/form-data">
+        <div>
+            <input type="hidden" name="row" value="{{ layers.len() + 1 }}">
+            <input type="submit" name="action" value="add">
+        </div>
+    </form>
+</section>
+{%- endblock -%}

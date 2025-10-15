@@ -23,11 +23,11 @@ table#badges {
     border-collapse: collapse;
     display: block;
 }
-table#badges th, table td {
+table#badges th, table#badges td {
     border: 1px solid #bbb;
     padding: 5px;
 }
-table#badges td.Paid, table td.Yes {
+table#badges td.Paid, table#badges td.Yes {
     background-color: #a9ffba;
 }
 table#badges td.Unpaid {

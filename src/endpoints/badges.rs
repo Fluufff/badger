@@ -9,7 +9,7 @@ use std::fs;
 use crate::{
     AppError,
     templates::UserEntry,
-    types::{Layer, LayersConfig},
+    types::{Layer, LayerOpt, LayersConfig},
 };
 
 struct LayerId {
@@ -27,12 +27,13 @@ pub struct BadgePDF {
 
 impl BadgePDF {
     pub async fn init(db: &Pool<MySql>, name: &str) -> Result<Self, AppError> {
+        let uploads_dir = std::env::var("UPLOADS_DIR").unwrap();
         let layers_config =
             sqlx::query_as::<_, LayersConfig>("select * from layers_config limit 1;")
                 .fetch_one(db)
                 .await
                 .map_err(AppError::Db)?;
-        let layers = sqlx::query_as::<_, Layer>("select * from layers;")
+        let layers = sqlx::query_as::<_, Layer>("select * from layers order by id;")
             .fetch_all(db)
             .await
             .map_err(AppError::Db)?;
@@ -44,7 +45,7 @@ impl BadgePDF {
                 if layer.asset_path == "badge" {
                     LayerId { layer, id: None }
                 } else {
-                    let img = fs::read(&layer.asset_path).unwrap();
+                    let img = fs::read(format!("{}/{}", uploads_dir, layer.asset_path)).unwrap();
                     let img = RawImage::decode_from_bytes(img.as_bytes(), &mut Vec::new()).unwrap();
                     let id = Some(doc.add_image(&img));
                     LayerId { layer, id }
@@ -52,7 +53,7 @@ impl BadgePDF {
             })
             .collect::<Vec<_>>();
 
-        let font = fs::read(&layers_config.font_path).unwrap();
+        let font = fs::read(format!("{}/{}", uploads_dir, layers_config.font_path)).unwrap();
         let font = ParsedFont::from_bytes(font.as_bytes(), 0, &mut vec![]).unwrap();
         let font = doc.add_font(&font);
 
@@ -91,10 +92,22 @@ impl BadgePDF {
                     },
                 });
             } else {
-                ops.push(Op::UseXobject {
-                    id: layer.id.clone().unwrap(),
-                    transform: Default::default(),
-                })
+                let should_not = layer.layer.event_not;
+                let should_print = match layer.layer.event {
+                    LayerOpt::Any => !should_not,
+                    LayerOpt::Fursuit => false,
+                    LayerOpt::Staff => user.staff.is_no() == should_not,
+                    LayerOpt::Medic => false,
+                    LayerOpt::Security => false,
+                    LayerOpt::Sponsor => user.sponsor.is_no() == should_not,
+                    LayerOpt::User => user.ticket.is_no() == should_not,
+                };
+                if should_print {
+                    ops.push(Op::UseXobject {
+                        id: layer.id.clone().unwrap(),
+                        transform: Default::default(),
+                    })
+                }
             }
         }
 
@@ -159,10 +172,22 @@ impl BadgePDF {
                     },
                 });
             } else {
-                ops.push(Op::UseXobject {
-                    id: layer.id.clone().unwrap(),
-                    transform: Default::default(),
-                })
+                let should_not = layer.layer.event_not;
+                let should_print = match layer.layer.event {
+                    LayerOpt::Any => !should_not,
+                    LayerOpt::Fursuit => true,
+                    LayerOpt::Staff => false,
+                    LayerOpt::Medic => false,
+                    LayerOpt::Security => false,
+                    LayerOpt::Sponsor => false,
+                    LayerOpt::User => false,
+                };
+                if should_print {
+                    ops.push(Op::UseXobject {
+                        id: layer.id.clone().unwrap(),
+                        transform: Default::default(),
+                    })
+                }
             }
         }
 

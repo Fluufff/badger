@@ -18,6 +18,7 @@ use std::{env, fs};
 use tracing::info;
 pub mod auth;
 pub mod badges;
+pub mod designer;
 
 pub async fn main_handler(
     cookies: CookieJar,

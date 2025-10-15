@@ -8,7 +8,8 @@ use axum::{
 };
 use sqlx::MySqlPool;
 use thiserror::Error;
-use tracing::info;
+use tower_http::services::ServeDir;
+use tracing::{error, info};
 
 mod auth;
 mod endpoints;
@@ -39,6 +40,7 @@ enum AppError {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
+        error!("app error {}", self);
         match &self {
             Self::Db(_) | Self::Io(_) | Self::Image(_) | Self::Askama(_) => {
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
@@ -64,17 +66,24 @@ async fn main() -> Result<(), AppError> {
     let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET env required");
 
     let db = MySqlPool::connect(&database_url).await?;
+
     let state = types::AppState { db, jwt_secret };
 
+    let uploads_dir = std::env::var("UPLOADS_DIR").unwrap();
     let app = Router::new()
         .route(
             "/",
             get(endpoints::main_handler).post(endpoints::main_handler),
         )
         .route(
+            "/designer",
+            get(endpoints::designer::get_handler).post(endpoints::designer::post_handler),
+        )
+        .route(
             "/login",
             get(endpoints::auth::login_handler).post(endpoints::auth::login_handler),
         )
+        .nest_service(&format!("/{}", &uploads_dir), ServeDir::new(&uploads_dir))
         .with_state(Arc::new(state));
 
     let listener = tokio::net::TcpListener::bind("[::]:3000").await.unwrap();

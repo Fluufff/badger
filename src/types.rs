@@ -32,10 +32,20 @@ pub struct Layer {
     pub title: String,
     pub asset_path: String,
 
-    pub on_sponsor: bool,
-    pub on_staff: bool,
-    pub on_staff_security: bool,
-    pub on_staff_medic: bool,
+    pub event: LayerOpt,
+    pub event_not: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, sqlx::Type, strum::EnumIs)]
+#[sqlx(rename_all = "snake_case")]
+pub enum LayerOpt {
+    Any,
+    User,
+    Fursuit,
+    Sponsor,
+    Staff,
+    Security,
+    Medic,
 }
 
 #[derive(sqlx::FromRow, Debug)]
@@ -48,22 +58,22 @@ pub struct Stuff {
 
 #[derive(sqlx::FromRow, Debug)]
 pub struct LayersConfig {
-    page_width_mm: f32,
-    page_height_mm: f32,
+    pub page_width_mm: f32,
+    pub page_height_mm: f32,
 
     pub dpi: f32,
 
-    avatar_size_pt: f32,
-    avatar_y_pt: f32,
+    pub avatar_size_pt: f32,
+    pub avatar_y_pt: f32,
 
     pub font_path: String,
 
-    regnum_size: f32,
-    regnum_x_pt: f32,
-    regnum_y_pt: f32,
+    pub regnum_size: f32,
+    pub regnum_x_pt: f32,
+    pub regnum_y_pt: f32,
 
-    nick_size: f32,
-    nick_y_pt: f32,
+    pub nick_size: f32,
+    pub nick_y_pt: f32,
 }
 
 impl LayersConfig {

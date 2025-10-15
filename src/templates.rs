@@ -1,8 +1,8 @@
 use askama::Template;
 
-use crate::auth;
+use crate::{auth, types};
 
-#[derive(strum::Display, Debug)]
+#[derive(strum::Display, Debug, strum::EnumIs)]
 pub enum StuffState {
     No,
     Unpaid,
@@ -44,8 +44,14 @@ pub struct MainTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "layers.html")]
-pub struct LayersTemplate {}
+#[template(path = "designer.html")]
+pub struct DesignerTemplate {
+    pub auth: auth::Claims,
+
+    pub assets_dir: String,
+    pub config: types::LayersConfig,
+    pub layers: Vec<types::Layer>,
+}
 
 #[derive(Template, Default)]
 #[template(path = "login.html")]
