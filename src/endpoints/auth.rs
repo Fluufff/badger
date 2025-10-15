@@ -111,3 +111,12 @@ pub async fn login_handler(
 
     Ok((cookies, Html(r)).into_response())
 }
+
+pub async fn logout_handler(
+    mut cookies: CookieJar,
+    State(state): State<Arc<types::AppState>>,
+    Form(login): Form<LoginPayload>,
+) -> Result<Response, AppError> {
+    cookies = cookies.remove("auth");
+    login_handler(cookies, State(state), Form(login)).await
+}

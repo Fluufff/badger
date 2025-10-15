@@ -83,6 +83,7 @@ async fn main() -> Result<(), AppError> {
             "/login",
             get(endpoints::auth::login_handler).post(endpoints::auth::login_handler),
         )
+        .route("/logout", get(endpoints::auth::logout_handler))
         .nest_service(&format!("/{}", &uploads_dir), ServeDir::new(&uploads_dir))
         .with_state(Arc::new(state));
 
