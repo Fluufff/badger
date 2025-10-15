@@ -34,14 +34,14 @@ enum AppError {
     Askama(#[from] askama::Error),
     #[error("Unauthorized")]
     Unauthorized,
-    #[error("other: {0}")]
-    Other(String),
+    // #[error("other: {0}")]
+    // Other(String),
 }
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         error!("app error {}", self);
-        match &self {
+        match self {
             Self::Db(_) | Self::Io(_) | Self::Image(_) | Self::Askama(_) => {
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             }
@@ -49,7 +49,7 @@ impl IntoResponse for AppError {
                 StatusCode::UNAUTHORIZED.into_response()
             }
             Self::Unauthorized => Redirect::temporary("/login").into_response(),
-            Self::Other(_) => StatusCode::BAD_REQUEST.into_response(),
+            // Self::Other(reason) => (StatusCode::BAD_REQUEST, reason).into_response(),
         }
     }
 }

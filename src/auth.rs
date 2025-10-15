@@ -14,6 +14,7 @@ pub enum LoginResult {
     MissingMFA,
     WrongMFA,
     NotStaff,
+    #[allow(dead_code)] // used in html template only
     Authenticated(String, Claims),
 }
 

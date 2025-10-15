@@ -9,18 +9,13 @@ pub struct AppState {
     pub jwt_secret: String,
 }
 
-#[derive(Deserialize)]
-pub struct GenerateRequest {
-    pub badge_ids: Vec<i64>,
-}
-
 #[derive(sqlx::FromRow, Debug)]
 pub struct User {
     pub regnumber: i32,
     // pub email: String,
     pub hash: String,
     pub nick: Option<String>,
-    pub gid: i32,
+    // pub gid: i32,
     // pub double_auth: Option<i32>,
     pub double_auth_secret: Option<String>,
     // pub locked: Option<String>,

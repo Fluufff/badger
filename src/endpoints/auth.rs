@@ -12,7 +12,6 @@ use axum::{
     response::{Html, IntoResponse, Redirect, Response},
 };
 use axum_extra::extract::{CookieJar, cookie::Cookie};
-use image::EncodableLayout;
 use jsonwebtoken::{DecodingKey, Validation};
 use serde::Deserialize;
 use tracing::info;
@@ -58,8 +57,6 @@ pub async fn login_handler(
     State(state): State<Arc<types::AppState>>,
     Form(login): Form<LoginPayload>,
 ) -> Result<Response, AppError> {
-    info!("handling login");
-
     let redir = Redirect::temporary(login.redirect.as_deref().unwrap_or("/"));
 
     if let Some(token) = cookies.get("auth") {
