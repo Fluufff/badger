@@ -21,6 +21,13 @@ pub struct User {
     // pub locked: Option<String>,
 }
 
+#[derive(sqlx::FromRow, Debug)]
+pub struct StaffAssignments {
+    pub regnumber: i32,
+    pub medic: bool,
+    pub security: bool,
+}
+
 #[derive(sqlx::FromRow, Debug, Serialize, Deserialize)]
 pub struct Layer {
     pub id: i32,

@@ -1,22 +1,5 @@
-.horizontal {
-    display: flex;
-    gap: 10px;
-}
-.vertical {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
 p {
     margin-top: 0;
-}
-.flex {
-    flex: 1;
-}
-.option-box {
-    padding: 10px;
-    border: 1px solid #bbb;
-    border-radius: 10px;
 }
 
 table#badges {

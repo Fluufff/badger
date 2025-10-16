@@ -19,6 +19,7 @@ use tracing::info;
 pub mod auth;
 pub mod badges;
 pub mod designer;
+pub mod staff_assign;
 
 pub async fn main_handler(
     cookies: CookieJar,
@@ -45,7 +46,13 @@ pub async fn main_handler(
             && v == "on"
         {
             info!(id = &user.regnumber, "{count_done}/{total} printing user");
-            doc.add_user(&user).unwrap();
+            doc.add_user(&user, false, false).unwrap();
+            if user.medic.is_yes() {
+                doc.add_user(&user, true, false).unwrap();
+            }
+            if user.security.is_yes() {
+                doc.add_user(&user, false, true).unwrap();
+            }
             count_done += 1;
         }
         if let Some(v) = data.get(&format!("fursuit_{}", &user.regnumber))
@@ -77,6 +84,12 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
         .fetch_all(db)
         .await
         .map_err(AppError::Db)?;
+
+    let staff_assignments =
+        sqlx::query_as::<_, types::StaffAssignments>("select * from staff_assignments;")
+            .fetch_all(db)
+            .await
+            .map_err(AppError::Db)?;
 
     let fursuit_entries = sqlx::query_as::<_, types::FursuitAnswer>("select fv.regnumber, f.name, fv.value from registrations_forms as f left join registrations_forms_list as fl on fl.fid=f.fid left join registrations_forms_values as fv on fv.ffid=f.ffid where fl.name='Fursuiter' and fv.value!='';").fetch_all(db).await.map_err(AppError::Db)?;
 
@@ -171,12 +184,23 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
             let has_fursuit_avatar = fursuit_avatar.is_some().into();
             let fursuit_avatar = fursuit_avatar.unwrap_or(format!("{}/{}", avatar_dir, "full.png"));
 
+            let medic = staff_assignments
+                .iter()
+                .any(|ass| ass.regnumber == u.regnumber && ass.medic)
+                .into();
+            let security = staff_assignments
+                .iter()
+                .any(|ass| ass.regnumber == u.regnumber && ass.security)
+                .into();
+
             UserEntry {
                 regnumber: u.regnumber,
                 nickname: u.nick.unwrap_or_default(),
                 sponsor,
                 ticket,
                 staff,
+                medic,
+                security,
                 avatar,
                 has_avatar,
                 fursuit_name,

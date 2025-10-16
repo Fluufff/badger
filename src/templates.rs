@@ -28,6 +28,8 @@ pub struct UserEntry {
     pub ticket: StuffState,
     pub sponsor: StuffState,
     pub staff: BoolState,
+    pub medic: BoolState,
+    pub security: BoolState,
     pub avatar: String,
     pub has_avatar: BoolState,
     pub fursuit_name: Option<String>,
@@ -58,4 +60,11 @@ pub struct DesignerTemplate {
 pub struct LoginTemplate {
     pub lastuser: Option<String>,
     pub lastpass: Option<String>,
+}
+
+#[derive(Template)]
+#[template(path = "staff_assign.html")]
+pub struct StaffAssignTemplate {
+    pub auth: auth::Claims,
+    pub staff: Vec<UserEntry>,
 }

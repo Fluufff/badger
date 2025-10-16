@@ -80,6 +80,10 @@ async fn main() -> Result<(), AppError> {
             get(endpoints::designer::get_handler).post(endpoints::designer::post_handler),
         )
         .route(
+            "/staff_assign",
+            get(endpoints::staff_assign::handler).post(endpoints::staff_assign::handler),
+        )
+        .route(
             "/login",
             get(endpoints::auth::login_handler).post(endpoints::auth::login_handler),
         )

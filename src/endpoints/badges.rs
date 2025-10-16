@@ -67,7 +67,12 @@ impl BadgePDF {
         })
     }
 
-    pub fn add_user(&mut self, user: &UserEntry) -> Result<(), AppError> {
+    pub fn add_user(
+        &mut self,
+        user: &UserEntry,
+        add_medic: bool,
+        add_security: bool,
+    ) -> Result<(), AppError> {
         let mut ops = Vec::new();
         for layer in self.layers.iter() {
             if layer.layer.asset_path == "badge" {
@@ -97,8 +102,8 @@ impl BadgePDF {
                     LayerOpt::Any => !should_not,
                     LayerOpt::Fursuit => false,
                     LayerOpt::Staff => user.staff.is_no() == should_not,
-                    LayerOpt::Medic => false,
-                    LayerOpt::Security => false,
+                    LayerOpt::Medic => add_medic,
+                    LayerOpt::Security => add_security,
                     LayerOpt::Sponsor => user.sponsor.is_no() == should_not,
                     LayerOpt::User => user.ticket.is_no() == should_not,
                 };
