@@ -243,6 +243,19 @@ impl BadgePDF {
             x: self.config.regnum_x(),
             y: self.config.regnum_y(),
         });
+        let c = self
+            .config
+            .regnum_color
+            .parse::<csscolorparser::Color>()
+            .unwrap();
+        ops.push(Op::SetFillColor {
+            col: Color::Rgb(Rgb {
+                r: c.r,
+                g: c.g,
+                b: c.b,
+                icc_profile: None,
+            }),
+        });
         ops.extend_from_slice(&text_drawing_ops);
 
         let options = TextShapingOptions {
@@ -259,6 +272,19 @@ impl BadgePDF {
                 &options,
             )
             .unwrap();
+        let c = self
+            .config
+            .nick_color
+            .parse::<csscolorparser::Color>()
+            .unwrap();
+        ops.push(Op::SetFillColor {
+            col: Color::Rgb(Rgb {
+                r: c.r,
+                g: c.g,
+                b: c.b,
+                icc_profile: None,
+            }),
+        });
         let text_drawing_ops = shaped_text.get_ops(Point {
             x: Pt(0.0),
             y: self.config.nick_y(),
