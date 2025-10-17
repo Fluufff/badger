@@ -11,12 +11,15 @@ CREATE TABLE `layers` (
   event_not bool NOT NULL
 );
 INSERT INTO `layers` VALUES
-(1,'base','layers/base.png','any',0),
-(6,'badge','badge','any',0),
-(2,'unknown','e5b9582029a170cfb1a5caf499870dfd.png','user',0),
-(5,'unknown','80ad556a7e84028bf05bdd32c73c1e12.png','staff',0),
-(3,'no sponsor','6c38106661ed0b63dc77e75c4c674f54.png','sponsor',1),
-(4,'sponsor','f7513a1bf8ab841035bea228a6986876.png','sponsor',0);
+(1,'base','93c7992ac8ab742fa705bcd87aa66f20.png','any',0),
+(2,'badge','badge','any',0),
+(3,'attendee','a28db4c902bb7cdeaec8395ccd81a94a.png','user',0),
+(5,'staff','e5785e2e7ddc0b7c00f01b04ad9134b2.png','staff',0),
+(4,'sponsor','6fd34630b74aa251f23dffa40cc74b11.png','sponsor',0),
+(6,'security','736e1704501ca7086c6f2f7db4306f81.png','security',0),
+(7,'medic','33a61852b70a04f9d2fd32dd288fb788.png','medic',0),
+(8,'fursuit','d47e279130a97f57a6cdcf7d1d44ec9a.png','fursuit',0);
+
 
 DROP TABLE IF EXISTS `layers_config`;
 CREATE TABLE `layers_config` (
@@ -40,7 +43,7 @@ CREATE TABLE `layers_config` (
   nick_color TEXT NOT NULL
 );
 INSERT INTO `layers_config` VALUES
-(54,86,300,100,100,'3f45f0decb9e9f48b25d13d40e115cc8.ttf',12,10,240, "#000",16,60, "#000");
+(54,86,300,153,59,'ab79ea0152b4c8a85bceb66bc4c251d3.ttf',14,95,60,'#000000',16,40,'#ffffff');
 
 DROP TABLE IF EXISTS `staff_asignments`;
 CREATE TABLE `staff_assignments` (
