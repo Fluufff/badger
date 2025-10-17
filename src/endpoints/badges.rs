@@ -118,11 +118,13 @@ impl BadgePDF {
 
         let options = TextShapingOptions {
             font_size: self.config.regnum_size(),
+            max_width: Some(Pt(50.0)),
+            align: TextAlign::Right,
             ..Default::default()
         };
         let shaped_text = self
             .doc
-            .shape_text(&format!("#{}", user.regnumber), &self.font, &options)
+            .shape_text(&format!("{}", user.regnumber), &self.font, &options)
             .unwrap();
         let c = self
             .config
@@ -224,25 +226,14 @@ impl BadgePDF {
 
         let options = TextShapingOptions {
             font_size: self.config.regnum_size(),
+            max_width: Some(Pt(50.0)),
+            align: TextAlign::Right,
             ..Default::default()
         };
         let shaped_text = self
             .doc
-            .shape_text(
-                &format!(
-                    "{}",
-                    user.fursuit_species
-                        .as_ref()
-                        .unwrap_or(&"unknown".to_owned())
-                ),
-                &self.font,
-                &options,
-            )
+            .shape_text(&format!("{}", user.regnumber), &self.font, &options)
             .unwrap();
-        let text_drawing_ops = shaped_text.get_ops(Point {
-            x: self.config.regnum_x(),
-            y: self.config.regnum_y(),
-        });
         let c = self
             .config
             .regnum_color
@@ -256,6 +247,10 @@ impl BadgePDF {
                 icc_profile: None,
             }),
         });
+        let text_drawing_ops = shaped_text.get_ops(Point {
+            x: self.config.regnum_x(),
+            y: self.config.regnum_y(),
+        });
         ops.extend_from_slice(&text_drawing_ops);
 
         let options = TextShapingOptions {
@@ -264,10 +259,13 @@ impl BadgePDF {
             align: TextAlign::Center,
             ..Default::default()
         };
+        let fursuit_name = user.fursuit_name.as_deref().unwrap_or("some");
+        let fursuit_species = user.fursuit_species.as_deref().unwrap_or("thing");
+
         let shaped_text = self
             .doc
             .shape_text(
-                user.fursuit_name.as_ref().unwrap_or(&"unknown".to_owned()),
+                &format!("{fursuit_name} - {fursuit_species}"),
                 &self.font,
                 &options,
             )
