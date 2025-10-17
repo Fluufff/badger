@@ -1,7 +1,7 @@
 use image::EncodableLayout;
 use printpdf::{
-    FontId, Op, ParsedFont, PdfDocument, PdfPage, PdfSaveOptions, Point, Pt, Px, RawImage,
-    TextAlign, TextShapingOptions, XObjectId, XObjectTransform,
+    Color, FontId, Op, ParsedFont, PdfDocument, PdfPage, PdfSaveOptions, Point, Pt, Px, RawImage,
+    Rgb, TextAlign, TextShapingOptions, XObjectId, XObjectTransform,
 };
 use sqlx::{MySql, Pool};
 use std::fs;
@@ -124,6 +124,19 @@ impl BadgePDF {
             .doc
             .shape_text(&format!("#{}", user.regnumber), &self.font, &options)
             .unwrap();
+        let c = self
+            .config
+            .regnum_color
+            .parse::<csscolorparser::Color>()
+            .unwrap();
+        ops.push(Op::SetFillColor {
+            col: Color::Rgb(Rgb {
+                r: c.r,
+                g: c.g,
+                b: c.b,
+                icc_profile: None,
+            }),
+        });
         let text_drawing_ops = shaped_text.get_ops(Point {
             x: self.config.regnum_x(),
             y: self.config.regnum_y(),
@@ -140,6 +153,19 @@ impl BadgePDF {
             .doc
             .shape_text(&user.nickname, &self.font, &options)
             .unwrap();
+        let c = self
+            .config
+            .nick_color
+            .parse::<csscolorparser::Color>()
+            .unwrap();
+        ops.push(Op::SetFillColor {
+            col: Color::Rgb(Rgb {
+                r: c.r,
+                g: c.g,
+                b: c.b,
+                icc_profile: None,
+            }),
+        });
         let text_drawing_ops = shaped_text.get_ops(Point {
             x: Pt(0.0),
             y: self.config.nick_y(),

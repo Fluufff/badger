@@ -31,3 +31,4 @@ askama = { version = "0.14.0", features = ["full"]}
 strum = { version = "0.27", features = ["derive"] }
 md5 = "0.8.0"
 base16ct = { version = "0.3.0", features = ["alloc"] }
+csscolorparser = "0.7.2"

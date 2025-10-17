@@ -80,10 +80,12 @@ pub async fn post_handler(
                 .and_then(|s| str::parse::<f32>(s).ok()),
             data.get("regnum_y_pt")
                 .and_then(|s| str::parse::<f32>(s).ok()),
+            data.get("regnum_color"),
             data.get("nick_size")
                 .and_then(|s| str::parse::<f32>(s).ok()),
             data.get("nick_y_pt")
                 .and_then(|s| str::parse::<f32>(s).ok()),
+            data.get("nick_color"),
         ) {
             (
                 Some(page_width_mm),
@@ -94,10 +96,12 @@ pub async fn post_handler(
                 Some(regnum_size),
                 Some(regnum_x_pt),
                 Some(regnum_y_pt),
+                Some(regnum_color),
                 Some(nick_size),
                 Some(nick_y_pt),
+                Some(nick_color),
             ) => {
-                sqlx::query("update layers_config set page_width_mm=?, page_height_mm=?, dpi=?, avatar_size_pt=?, avatar_y_pt=?, regnum_size=?, regnum_x_pt=?, regnum_y_pt=?, nick_size=?, nick_y_pt=?")
+                sqlx::query("update layers_config set page_width_mm=?, page_height_mm=?, dpi=?, avatar_size_pt=?, avatar_y_pt=?, regnum_size=?, regnum_x_pt=?, regnum_y_pt=?, regnum_color=?, nick_size=?, nick_y_pt=?, nick_color=?")
                 .bind(page_width_mm)
                 .bind(page_height_mm)
                 .bind(dpi)
@@ -106,8 +110,10 @@ pub async fn post_handler(
                 .bind(regnum_size)
                 .bind(regnum_x_pt)
                 .bind(regnum_y_pt)
+                .bind(regnum_color)
                 .bind(nick_size)
                 .bind(nick_y_pt)
+                .bind(nick_color)
                 .execute(&state.db)
                     .await
                     .map_err(AppError::from)?;

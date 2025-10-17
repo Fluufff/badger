@@ -73,9 +73,11 @@ pub struct LayersConfig {
     pub regnum_size: f32,
     pub regnum_x_pt: f32,
     pub regnum_y_pt: f32,
+    pub regnum_color: String,
 
     pub nick_size: f32,
     pub nick_y_pt: f32,
+    pub nick_color: String,
 }
 
 impl LayersConfig {

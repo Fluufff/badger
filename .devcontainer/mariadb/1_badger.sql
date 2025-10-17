@@ -33,12 +33,14 @@ CREATE TABLE `layers_config` (
   regnum_size FLOAT NOT NULL,
   regnum_x_pt FLOAT NOT NULL,
   regnum_y_pt FLOAT NOT NULL,
+  regnum_color TEXT NOT NULL,
 
   nick_size FLOAT NOT NULL,
-  nick_y_pt FLOAT NOT NULL
+  nick_y_pt FLOAT NOT NULL,
+  nick_color TEXT NOT NULL
 );
 INSERT INTO `layers_config` VALUES
-(54,86,300,100,100,'3f45f0decb9e9f48b25d13d40e115cc8.ttf',12,10,240,16,60);
+(54,86,300,100,100,'3f45f0decb9e9f48b25d13d40e115cc8.ttf',12,10,240, "#000",16,60, "#000");
 
 DROP TABLE IF EXISTS `staff_asignments`;
 CREATE TABLE `staff_assignments` (
