@@ -70,6 +70,10 @@ async fn main() -> Result<(), AppError> {
     let state = types::AppState { db, jwt_secret };
 
     let uploads_dir = std::env::var("UPLOADS_DIR").unwrap();
+    let static_path = match uploads_dir.starts_with("/") {
+        true => uploads_dir.clone(),
+        false => format!("/{uploads_dir}"),
+    };
     let app = Router::new()
         .route(
             "/",
@@ -88,7 +92,7 @@ async fn main() -> Result<(), AppError> {
             get(endpoints::auth::login_handler).post(endpoints::auth::login_handler),
         )
         .route("/logout", get(endpoints::auth::logout_handler))
-        .nest_service(&format!("/{}", &uploads_dir), ServeDir::new(&uploads_dir))
+        .nest_service(&static_path, ServeDir::new(&uploads_dir))
         .with_state(Arc::new(state));
 
     let listener = tokio::net::TcpListener::bind("[::]:3000").await.unwrap();
