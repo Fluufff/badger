@@ -1,0 +1,22 @@
+services:
+  badger:
+    image: ghcr.io/fluufff/badger:latest
+    environment:
+      UPLOADS_DIR: /assets/uploads/9
+      AVATAR_DIR: /assets/avatars
+      MARIADB_DATABASE: fluufff
+      MARIADB_HOSTNAME: platyplus-mysql
+      # MARIADB_ROOT_PASSWORD: 
+      # JWT_SECRET: 
+    volumes:
+    - /var/www/platyplus/registration.fluufff.org/assets:/assets
+    networks:
+    - nginx_default
+    - registrationfluuffforg_default
+networks:
+  nginx_default:
+    name: nginx_default
+    external: true
+  registrationfluuffforg_default:
+    name: registrationfluuffforg_default
+    external: true
