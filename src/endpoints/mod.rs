@@ -46,12 +46,9 @@ pub async fn main_handler(
             && v == "on"
         {
             info!(id = &user.regnumber, "{count_done}/{total} printing user");
-            doc.add_user(&user, false, false).unwrap();
-            if user.medic.is_yes() {
-                doc.add_user(&user, true, false).unwrap();
-            }
-            if user.security.is_yes() {
-                doc.add_user(&user, false, true).unwrap();
+            doc.add_user(&user, false).unwrap();
+            if user.media.is_yes() {
+                doc.add_user(&user, true).unwrap();
             }
             count_done += 1;
         }
@@ -131,17 +128,58 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
     let users = users
         .into_iter()
         .map(|u| {
-            let ticket = stuff
+            let stuff = stuff
                 .iter()
-                .find(|stuff| stuff.regnumber == u.regnumber && stuff.kind == "Ticket");
-            let ticket = match ticket {
-                None => StuffState::No,
-                Some(ticket) => match ticket.paid {
-                    None => StuffState::Unknown,
-                    Some(true) => StuffState::Paid,
-                    Some(false) => StuffState::Unpaid,
-                },
-            };
+                .filter(|s| s.regnumber == u.regnumber)
+                .collect::<Vec<_>>();
+            let stuff_tickets = stuff
+                .iter()
+                .filter(|s| s.kind == "Ticket")
+                .collect::<Vec<_>>();
+
+            let ticket_any = (!stuff_tickets.is_empty()).into();
+
+            let ticket_convention = stuff_tickets
+                .iter()
+                .find(|stuff| stuff.name == "Convention Ticket")
+                .map(|s| StuffState::from(**s))
+                .unwrap_or(StuffState::No);
+
+            let ticket_wed = stuff_tickets
+                .iter()
+                .find(|stuff| stuff.name == "Day Ticket - Wednesday")
+                .map(|s| StuffState::from(**s))
+                .unwrap_or(StuffState::No);
+
+            let ticket_thu = stuff_tickets
+                .iter()
+                .find(|stuff| stuff.name == "Day Ticket - Thursday")
+                .map(|s| StuffState::from(**s))
+                .unwrap_or(StuffState::No);
+
+            let ticket_fri = stuff_tickets
+                .iter()
+                .find(|stuff| stuff.name == "Day Ticket - Friday")
+                .map(|s| StuffState::from(**s))
+                .unwrap_or(StuffState::No);
+
+            let ticket_sat = stuff_tickets
+                .iter()
+                .find(|stuff| stuff.name == "Day Ticket - Saturday")
+                .map(|s| StuffState::from(**s))
+                .unwrap_or(StuffState::No);
+
+            let ticket_sun = stuff_tickets
+                .iter()
+                .find(|stuff| stuff.name == "Day Ticket - Sunday")
+                .map(|s| StuffState::from(**s))
+                .unwrap_or(StuffState::No);
+
+            let ticket_day = stuff_tickets
+                .iter()
+                .find(|stuff| stuff.name.starts_with("Day Ticket"))
+                .map(|s| StuffState::from(**s))
+                .unwrap_or(StuffState::No);
 
             let sponsor = stuff
                 .iter()
@@ -184,23 +222,25 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
             let has_fursuit_avatar = fursuit_avatar.is_some().into();
             let fursuit_avatar = fursuit_avatar.unwrap_or(format!("{}/{}", avatar_dir, "full.png"));
 
-            let medic = staff_assignments
+            let media = staff_assignments
                 .iter()
-                .any(|ass| ass.regnumber == u.regnumber && ass.medic)
-                .into();
-            let security = staff_assignments
-                .iter()
-                .any(|ass| ass.regnumber == u.regnumber && ass.security)
+                .any(|ass| ass.regnumber == u.regnumber && ass.media)
                 .into();
 
             UserEntry {
                 regnumber: u.regnumber,
                 nickname: u.nick.unwrap_or_default(),
                 sponsor,
-                ticket,
+                ticket_any,
+                ticket_convention,
+                ticket_day,
+                ticket_wed,
+                ticket_thu,
+                ticket_fri,
+                ticket_sat,
+                ticket_sun,
                 staff,
-                medic,
-                security,
+                media,
                 avatar,
                 has_avatar,
                 fursuit_name,

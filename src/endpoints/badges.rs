@@ -9,7 +9,7 @@ use std::fs;
 use crate::{
     AppError,
     templates::UserEntry,
-    types::{Layer, LayerOpt, LayersConfig},
+    types::{BadgeOpt, Layer, LayerOpt, LayersConfig},
 };
 
 struct LayerId {
@@ -22,7 +22,8 @@ pub struct BadgePDF {
     config: LayersConfig,
     layers: Vec<LayerId>,
     pages: Vec<PdfPage>,
-    font: FontId,
+    name_font: FontId,
+    nr_font: FontId,
 }
 
 impl BadgePDF {
@@ -53,9 +54,14 @@ impl BadgePDF {
             })
             .collect::<Vec<_>>();
 
-        let font = fs::read(format!("{}/{}", uploads_dir, layers_config.font_path)).unwrap();
-        let font = ParsedFont::from_bytes(font.as_bytes(), 0, &mut vec![]).unwrap();
-        let font = doc.add_font(&font);
+        let name_font =
+            fs::read(format!("{}/{}", uploads_dir, layers_config.name_font_path)).unwrap();
+        let name_font = ParsedFont::from_bytes(name_font.as_bytes(), 0, &mut vec![]).unwrap();
+        let name_font = doc.add_font(&name_font);
+
+        let nr_font = fs::read(format!("{}/{}", uploads_dir, layers_config.nr_font_path)).unwrap();
+        let nr_font = ParsedFont::from_bytes(nr_font.as_bytes(), 0, &mut vec![]).unwrap();
+        let nr_font = doc.add_font(&nr_font);
 
         let pages = Vec::new();
         Ok(Self {
@@ -63,16 +69,12 @@ impl BadgePDF {
             config: layers_config,
             layers,
             pages,
-            font,
+            name_font,
+            nr_font,
         })
     }
 
-    pub fn add_user(
-        &mut self,
-        user: &UserEntry,
-        add_medic: bool,
-        add_security: bool,
-    ) -> Result<(), AppError> {
+    pub fn add_user(&mut self, user: &UserEntry, add_media: bool) -> Result<(), AppError> {
         let mut ops = Vec::new();
         for layer in self.layers.iter() {
             if layer.layer.asset_path == "badge" {
@@ -98,15 +100,48 @@ impl BadgePDF {
                 });
             } else {
                 let should_not = layer.layer.event_not;
-                let should_print = match layer.layer.event {
-                    LayerOpt::Any => !should_not,
-                    LayerOpt::Fursuit => false,
-                    LayerOpt::Staff => user.staff.is_no() == should_not,
-                    LayerOpt::Medic => add_medic,
-                    LayerOpt::Security => add_security,
-                    LayerOpt::Sponsor => user.sponsor.is_no() == should_not,
-                    LayerOpt::User => user.ticket.is_no() == should_not,
-                };
+                let mut should_print = layer.layer.badge_type.is_any();
+                if layer.layer.badge_type.is_con_ticket() && !user.ticket_convention.is_no() {
+                    should_print = true;
+                }
+                if layer.layer.badge_type.is_day_ticket() && !user.ticket_day.is_no() {
+                    should_print = true;
+                }
+                if add_media && !layer.layer.event.is_media() {
+                    should_print = false;
+                }
+                if should_print {
+                    should_print = match layer.layer.event {
+                        LayerOpt::Any => !should_not,
+                        LayerOpt::Fursuit => false,
+                        LayerOpt::Staff => user.staff.is_no() == should_not,
+                        LayerOpt::Media => add_media,
+                        LayerOpt::Sponsor => {
+                            user.staff.is_no() && user.sponsor.is_no() == should_not
+                        }
+                        LayerOpt::Ticket => {
+                            user.staff.is_no() && user.ticket_any.is_no() == should_not
+                        }
+                        LayerOpt::TicketConvention => {
+                            user.staff.is_no() && user.ticket_convention.is_no() == should_not
+                        }
+                        LayerOpt::TicketWed => {
+                            user.staff.is_no() && user.ticket_wed.is_no() == should_not
+                        }
+                        LayerOpt::TicketThu => {
+                            user.staff.is_no() && user.ticket_thu.is_no() == should_not
+                        }
+                        LayerOpt::TicketFri => {
+                            user.staff.is_no() && user.ticket_fri.is_no() == should_not
+                        }
+                        LayerOpt::TicketSat => {
+                            user.staff.is_no() && user.ticket_sat.is_no() == should_not
+                        }
+                        LayerOpt::TicketSun => {
+                            user.staff.is_no() && user.ticket_sun.is_no() == should_not
+                        }
+                    };
+                }
                 if should_print {
                     ops.push(Op::UseXobject {
                         id: layer.id.clone().unwrap(),
@@ -118,13 +153,15 @@ impl BadgePDF {
 
         let options = TextShapingOptions {
             font_size: self.config.regnum_size(),
-            max_width: Some(Pt(50.0)),
-            align: TextAlign::Right,
+            // max_width: Some(Pt(50.0)),
+            max_width: Some(self.config.page_width().into_pt()),
+            // align: TextAlign::Right,
+            align: TextAlign::Center,
             ..Default::default()
         };
         let shaped_text = self
             .doc
-            .shape_text(&format!("{}", user.regnumber), &self.font, &options)
+            .shape_text(&format!("{}", user.regnumber), &self.nr_font, &options)
             .unwrap();
         let c = self
             .config
@@ -140,7 +177,8 @@ impl BadgePDF {
             }),
         });
         let text_drawing_ops = shaped_text.get_ops(Point {
-            x: self.config.regnum_x(),
+            // x: self.config.regnum_x(),
+            x: Pt(0.0),
             y: self.config.regnum_y(),
         });
         ops.extend_from_slice(&text_drawing_ops);
@@ -153,7 +191,7 @@ impl BadgePDF {
         };
         let shaped_text = self
             .doc
-            .shape_text(&user.nickname, &self.font, &options)
+            .shape_text(&user.nickname, &self.name_font, &options)
             .unwrap();
         let c = self
             .config
@@ -206,15 +244,17 @@ impl BadgePDF {
                 });
             } else {
                 let should_not = layer.layer.event_not;
-                let should_print = match layer.layer.event {
-                    LayerOpt::Any => !should_not,
-                    LayerOpt::Fursuit => true,
-                    LayerOpt::Staff => false,
-                    LayerOpt::Medic => false,
-                    LayerOpt::Security => false,
-                    LayerOpt::Sponsor => false,
-                    LayerOpt::User => false,
+                let mut should_print = match layer.layer.badge_type {
+                    BadgeOpt::Any | BadgeOpt::Fursuit => true,
+                    _ => false,
                 };
+                if should_print {
+                    should_print = match layer.layer.event {
+                        LayerOpt::Any => !should_not,
+                        LayerOpt::Fursuit => true,
+                        _ => false,
+                    };
+                }
                 if should_print {
                     ops.push(Op::UseXobject {
                         id: layer.id.clone().unwrap(),
@@ -224,15 +264,18 @@ impl BadgePDF {
             }
         }
 
+        let fursuit_species = user.fursuit_species.as_deref().unwrap_or("thing");
         let options = TextShapingOptions {
-            font_size: self.config.regnum_size(),
-            max_width: Some(Pt(50.0)),
-            align: TextAlign::Right,
+            font_size: self.config.regnum_size() - Pt(2.0),
+            // max_width: Some(Pt(50.0)),
+            max_width: Some(self.config.page_width().into_pt()),
+            // align: TextAlign::Right,
+            align: TextAlign::Center,
             ..Default::default()
         };
         let shaped_text = self
             .doc
-            .shape_text(&format!("{}", user.regnumber), &self.font, &options)
+            .shape_text(fursuit_species, &self.nr_font, &options)
             .unwrap();
         let c = self
             .config
@@ -248,8 +291,9 @@ impl BadgePDF {
             }),
         });
         let text_drawing_ops = shaped_text.get_ops(Point {
-            x: self.config.regnum_x(),
-            y: self.config.regnum_y(),
+            // x: self.config.regnum_x(),
+            x: Pt(0.0),
+            y: self.config.regnum_y() - Pt(7.0),
         });
         ops.extend_from_slice(&text_drawing_ops);
 
@@ -260,15 +304,10 @@ impl BadgePDF {
             ..Default::default()
         };
         let fursuit_name = user.fursuit_name.as_deref().unwrap_or("some");
-        let fursuit_species = user.fursuit_species.as_deref().unwrap_or("thing");
 
         let shaped_text = self
             .doc
-            .shape_text(
-                &format!("{fursuit_name} - {fursuit_species}"),
-                &self.font,
-                &options,
-            )
+            .shape_text(fursuit_name, &self.name_font, &options)
             .unwrap();
         let c = self
             .config
@@ -285,7 +324,7 @@ impl BadgePDF {
         });
         let text_drawing_ops = shaped_text.get_ops(Point {
             x: Pt(0.0),
-            y: self.config.nick_y(),
+            y: self.config.nick_y() + Pt(12.0),
         });
         ops.extend_from_slice(&text_drawing_ops);
 

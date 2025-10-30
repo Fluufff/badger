@@ -1,0 +1,1 @@
+AVATAR_DIR=avatars UPLOADS_DIR=uploads/9 cargo run

@@ -76,7 +76,8 @@
         </p>
     </div>
     <div class="option-box">
-        <p>font: <input type="file" name="file"></p>
+        <p>name font: <input type="file" name="name_font"></p>
+        <p>nr font: <input type="file" name="nr_font"></p>
         <input type="submit" value="update">
     </div>
 </form>
@@ -86,6 +87,7 @@
         <p>#</p>
         <p>media</p>
         <p>condition</p>
+        <p>badge type</p>
         <p>comment</p>
         <p></p>
     </section>
@@ -112,12 +114,25 @@
             </select>
             <select name="event_name">
                 <option value="Any" {% if layer.event.is_any() %}selected{% endif %}>any</option>
-                <option value="User" {% if layer.event.is_user() %}selected{% endif %}>user</option>
+                <option value="Ticket" {% if layer.event.is_ticket() %}selected{% endif %}>any ticket</option>
+                <option value="Ticket_convention" {% if layer.event.is_ticket_convention() %}selected{% endif %}>convention ticket</option>
+                <option value="Ticket_wed" {% if layer.event.is_ticket_wed() %}selected{% endif %}>wednesday ticket</option>
+                <option value="Ticket_thu" {% if layer.event.is_ticket_thu() %}selected{% endif %}>thursday ticket</option>
+                <option value="Ticket_fri" {% if layer.event.is_ticket_fri() %}selected{% endif %}>friday ticket</option>
+                <option value="Ticket_sat" {% if layer.event.is_ticket_sat() %}selected{% endif %}>saturday ticket</option>
+                <option value="Ticket_sun" {% if layer.event.is_ticket_sun() %}selected{% endif %}>sunday ticket</option>
                 <option value="Fursuit" {% if layer.event.is_fursuit() %}selected{% endif %}>fursuit</option>
                 <option value="Sponsor" {% if layer.event.is_sponsor() %}selected{% endif %}>sponsor</option>
                 <option value="Staff" {% if layer.event.is_staff() %}selected{% endif %}>staff</option>
-                <option value="Security" {% if layer.event.is_security() %}selected{% endif %}>security</option>
-                <option value="Medic" {% if layer.event.is_medic() %}selected{% endif %}>medic</option>
+                <option value="Media" {% if layer.event.is_media() %}selected{% endif %}>media</option>
+            </select>
+        </div>
+        <div>
+            <select name="badge_type">
+                <option value="Any" {% if layer.badge_type.is_any() %}selected{% endif %}>any</option>
+                <option value="Fursuit" {% if layer.badge_type.is_fursuit() %}selected{% endif %}>fursuit</option>
+                <option value="Con_ticket" {% if layer.badge_type.is_con_ticket() %}selected{% endif %}>con ticket</option>
+                <option value="Day_ticket" {% if layer.badge_type.is_day_ticket() %}selected{% endif %}>day ticket</option>
             </select>
         </div>
         <div><input type="text" name="title" value="{{ layer.title }}"></div>

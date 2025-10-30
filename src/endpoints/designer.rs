@@ -23,15 +23,14 @@ pub async fn post_handler(
 ) -> Result<Response, AppError> {
     let (cookies, _) = super::auth::must_be_logged_in(cookies, state.as_ref())?;
     let mut data = HashMap::new();
-    // let mut uploaded_file: Option<(String, Vec<u8>)> = None;
-    // let mut uploaded_file = None;
-    let mut uploaded_file = None;
+    let mut name_font_file = None;
+    let mut nr_font_file = None;
     let uploads_dir = std::env::var("UPLOADS_DIR").unwrap();
 
     while let Some(field) = multipart.next_field().await.unwrap() {
         let name = field.name().unwrap_or("").to_string();
 
-        if name == "file" {
+        if name == "name_font" || name == "nr_font" || name == "file" {
             let bytes = field.bytes().await.unwrap().to_vec();
             if bytes.len() == 0 {
                 continue;
@@ -49,9 +48,11 @@ pub async fn post_handler(
             let hash = base16ct::lower::encode_string(&hash.0);
             let file_path = format!("{}.{}", hash, ext);
             fs::write(format!("{}/{}", uploads_dir, file_path), bytes).unwrap();
-            uploaded_file = Some(file_path);
-            // uploaded_file = Some(bytes);
-            // uploaded_file = Some((format!("{}/{}.{}", uploads_dir, hash, ext), bytes))
+            if name == "name_font" {
+                name_font_file = Some(file_path);
+            } else {
+                nr_font_file = Some(file_path);
+            }
         } else {
             let value = field.text().await.unwrap_or_default();
             data.insert(name, value);
@@ -118,11 +119,21 @@ pub async fn post_handler(
                     .await
                     .map_err(AppError::from)?;
 
-                match uploaded_file {
+                match name_font_file {
                     None => {}
-                    Some(uploaded_file) => {
-                        sqlx::query("update layers_config set font_path=?")
-                            .bind(uploaded_file)
+                    Some(f) => {
+                        sqlx::query("update layers_config set name_font_path=?")
+                            .bind(f)
+                            .execute(&state.db)
+                            .await
+                            .map_err(AppError::from)?;
+                    }
+                }
+                match nr_font_file {
+                    None => {}
+                    Some(f) => {
+                        sqlx::query("update layers_config set nr_font_path=?")
+                            .bind(f)
                             .execute(&state.db)
                             .await
                             .map_err(AppError::from)?;
@@ -199,11 +210,22 @@ pub async fn post_handler(
                 }
             }
             Some(s) if s == "update" => {
-                match uploaded_file {
+                match name_font_file {
                     None => {}
-                    Some(uploaded_file) => {
+                    Some(f) => {
                         sqlx::query("update layers set asset_path=? where id=?")
-                            .bind(uploaded_file)
+                            .bind(f)
+                            .bind(row)
+                            .execute(&state.db)
+                            .await
+                            .map_err(AppError::from)?;
+                    }
+                };
+                match nr_font_file {
+                    None => {}
+                    Some(f) => {
+                        sqlx::query("update layers set asset_path=? where id=?")
+                            .bind(f)
                             .bind(row)
                             .execute(&state.db)
                             .await
@@ -213,15 +235,17 @@ pub async fn post_handler(
                 match (
                     data.get("event_is"),
                     data.get("event_name"),
+                    data.get("badge_type"),
                     data.get("title"),
                 ) {
-                    (Some(event_is), Some(event_name), Some(title)) => {
+                    (Some(event_is), Some(event_name), Some(badge_type), Some(title)) => {
                         let event_is =
                             !matches!(event_is.to_lowercase().as_str(), "true" | "t" | "1");
                         let event_name = event_name.to_lowercase();
-                        sqlx::query("update layers set event_not=?, event=?, title=? where id=?")
+                        sqlx::query("update layers set event_not=?, event=?, badge_type=?, title=? where id=?")
                             .bind(event_is)
                             .bind(event_name)
+                            .bind(badge_type)
                             .bind(title)
                             .bind(row)
                             .execute(&state.db)
@@ -233,7 +257,7 @@ pub async fn post_handler(
                 };
             }
             Some(s) if s == "add" => {
-                sqlx::query("insert into layers values (?, 'unknown', '', 'any', 0)")
+                sqlx::query("insert into layers values (?, 'unknown', '', 'any', 0, 'any')")
                     .bind(row)
                     .execute(&state.db)
                     .await

@@ -1,6 +1,9 @@
 use askama::Template;
 
-use crate::{auth, types};
+use crate::{
+    auth,
+    types::{self, Stuff},
+};
 
 #[derive(strum::Display, Debug, strum::EnumIs)]
 pub enum StuffState {
@@ -8,6 +11,16 @@ pub enum StuffState {
     Unpaid,
     Paid,
     Unknown,
+}
+
+impl From<&Stuff> for StuffState {
+    fn from(input: &Stuff) -> Self {
+        match input.paid {
+            None => Self::Unknown,
+            Some(true) => Self::Paid,
+            Some(false) => Self::Unpaid,
+        }
+    }
 }
 
 #[derive(strum::Display, Debug, strum::EnumIs)]
@@ -25,11 +38,17 @@ impl From<bool> for BoolState {
 pub struct UserEntry {
     pub regnumber: i32,
     pub nickname: String,
-    pub ticket: StuffState,
+    pub ticket_any: BoolState,
+    pub ticket_convention: StuffState,
+    pub ticket_day: StuffState,
+    pub ticket_wed: StuffState,
+    pub ticket_thu: StuffState,
+    pub ticket_fri: StuffState,
+    pub ticket_sat: StuffState,
+    pub ticket_sun: StuffState,
     pub sponsor: StuffState,
     pub staff: BoolState,
-    pub medic: BoolState,
-    pub security: BoolState,
+    pub media: BoolState,
     pub avatar: String,
     pub has_avatar: BoolState,
     pub fursuit_name: Option<String>,
@@ -66,5 +85,5 @@ pub struct LoginTemplate {
 #[template(path = "staff_assign.html")]
 pub struct StaffAssignTemplate {
     pub auth: auth::Claims,
-    pub staff: Vec<UserEntry>,
+    pub users: Vec<UserEntry>,
 }

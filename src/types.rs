@@ -24,8 +24,7 @@ pub struct User {
 #[derive(sqlx::FromRow, Debug)]
 pub struct StaffAssignments {
     pub regnumber: i32,
-    pub medic: bool,
-    pub security: bool,
+    pub media: bool,
 }
 
 #[derive(sqlx::FromRow, Debug, Serialize, Deserialize)]
@@ -36,18 +35,33 @@ pub struct Layer {
 
     pub event: LayerOpt,
     pub event_not: bool,
+    pub badge_type: BadgeOpt,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, sqlx::Type, strum::EnumIs)]
 #[sqlx(rename_all = "snake_case")]
 pub enum LayerOpt {
     Any,
-    User,
     Fursuit,
     Sponsor,
     Staff,
-    Security,
-    Medic,
+    Media,
+    Ticket,
+    TicketConvention,
+    TicketWed,
+    TicketThu,
+    TicketFri,
+    TicketSat,
+    TicketSun,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, sqlx::Type, strum::EnumIs)]
+#[sqlx(rename_all = "snake_case")]
+pub enum BadgeOpt {
+    Any,
+    Fursuit,
+    ConTicket,
+    DayTicket,
 }
 
 #[derive(sqlx::FromRow, Debug)]
@@ -68,7 +82,8 @@ pub struct LayersConfig {
     pub avatar_size_pt: f32,
     pub avatar_y_pt: f32,
 
-    pub font_path: String,
+    pub name_font_path: String,
+    pub nr_font_path: String,
 
     pub regnum_size: f32,
     pub regnum_x_pt: f32,

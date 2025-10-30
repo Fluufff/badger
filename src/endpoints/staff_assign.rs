@@ -25,26 +25,23 @@ pub async fn handler(
     {
         None => {}
         Some(regnumber) => {
-            let medic = data.contains_key("medic");
-            let security = data.contains_key("security");
+            let media = data.contains_key("media");
             let exists = sqlx::query("select regnumber from staff_assignments where regnumber=?")
                 .bind(regnumber)
                 .fetch_optional(&state.db)
                 .await
                 .map_err(AppError::from)?;
             if exists.is_some() {
-                sqlx::query("update staff_assignments set medic=?, security=? where regnumber=?")
-                    .bind(medic)
-                    .bind(security)
+                sqlx::query("update staff_assignments set media=? where regnumber=?")
+                    .bind(media)
                     .bind(regnumber)
                     .execute(&state.db)
                     .await
                     .map_err(AppError::from)?;
             } else {
-                sqlx::query("insert into staff_assignments values (?, ?, ?)")
+                sqlx::query("insert into staff_assignments values (?, ?)")
                     .bind(regnumber)
-                    .bind(medic)
-                    .bind(security)
+                    .bind(media)
                     .execute(&state.db)
                     .await
                     .map_err(AppError::from)?;
@@ -53,8 +50,7 @@ pub async fn handler(
     }
 
     let users = super::get_users(&state.db).await?;
-    let staff = users.into_iter().filter(|u| u.staff.is_yes()).collect();
 
-    let r = crate::templates::StaffAssignTemplate { staff, auth: user }.render()?;
+    let r = crate::templates::StaffAssignTemplate { users, auth: user }.render()?;
     return Ok((cookies, Html(r)).into_response());
 }

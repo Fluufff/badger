@@ -9,19 +9,17 @@
     <section class="header">
         <p>#</p>
         <p>nick</p>
-        <p>medic</p>
-        <p>security</p>
+        <p>media</p>
         <p></p>
     </section>
-    {% for user in staff %}
+    {% for user in users %}
     <form class="tr" action="" method="post">
         <div>
             <input type="hidden" name="regnumber" value="{{ user.regnumber }}">
             <p>{{ user.regnumber }}</p>
         </div>
         <p>{{ user.nickname }}</p>
-        <p><input type="checkbox" name="medic" {% if user.staff.is_yes() && user.medic.is_yes() %}checked="checked"{% endif %}></p>
-        <p><input type="checkbox" name="security" {% if user.staff.is_yes() && user.security.is_yes() %}checked="checked"{% endif %}></p>
+        <p><input type="checkbox" name="media" {% if user.media.is_yes() %}checked="checked"{% endif %}></p>
         <div>
             <input type="submit" value="update">
         </div>
