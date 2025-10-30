@@ -52,7 +52,7 @@ CREATE TABLE `layers_config` (
 INSERT INTO `layers_config` VALUES
 (54,85,300,140,36,'17d24beb28415462d4cb742152bf4b9a.ttf','17d24beb28415462d4cb742152bf4b9a.ttf',14,30,196.5,'#45271e',16,30,'#45271e');
 
-DROP TABLE IF EXISTS `staff_asignments`;
+DROP TABLE IF EXISTS `staff_assignments`;
 CREATE TABLE `staff_assignments` (
   regnumber INT(11) NOT NULL,
   media bool NOT NULL
