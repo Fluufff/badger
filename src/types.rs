@@ -113,6 +113,7 @@ impl LayersConfig {
     pub fn regnum_size(&self) -> Pt {
         Pt(self.regnum_size)
     }
+    #[allow(dead_code)]
     pub fn regnum_x(&self) -> Pt {
         Pt(self.regnum_x_pt)
     }

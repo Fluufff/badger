@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{AppError, types};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Claims {
     pub sub: String, // nickname
     pub exp: usize,
