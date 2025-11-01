@@ -24,11 +24,14 @@ pub mod staff_assign;
 pub async fn main_handler(
     cookies: CookieJar,
     State(state): State<Arc<types::AppState>>,
-    Form(data): Form<HashMap<String, String>>,
+    Form(mut data): Form<HashMap<String, String>>,
 ) -> Result<Response, AppError> {
     let (cookies, user) = auth::must_be_logged_in(cookies, state.as_ref())?;
 
     let users = get_users(&state.db).await?;
+
+    data.remove("user");
+    data.remove("password");
 
     if data.len() == 0 {
         let r = crate::templates::MainTemplate { users, auth: user }.render()?;
