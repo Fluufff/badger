@@ -5,11 +5,11 @@ use crate::{
     types::{self, Stuff},
 };
 
-#[derive(strum::Display, Debug, strum::EnumIs)]
+#[derive(strum::Display, Debug, strum::EnumIs, PartialEq, Eq, PartialOrd, Ord)]
 pub enum StuffState {
     No,
-    Unpaid,
     Paid,
+    Unpaid,
     Unknown,
 }
 
@@ -38,7 +38,7 @@ impl From<bool> for BoolState {
 pub struct UserEntry {
     pub regnumber: i32,
     pub nickname: String,
-    pub ticket_any: BoolState,
+    pub ticket_any: StuffState,
     pub ticket_convention: StuffState,
     pub ticket_day: StuffState,
     pub ticket_wed: StuffState,

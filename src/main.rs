@@ -54,8 +54,6 @@ impl IntoResponse for AppError {
     }
 }
 
-// let p_check = "uMe$9d6&p#W6Fx";
-
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
     tracing_subscriber::fmt::init();

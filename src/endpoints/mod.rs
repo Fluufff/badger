@@ -140,7 +140,11 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
                 .filter(|s| s.kind == "Ticket")
                 .collect::<Vec<_>>();
 
-            let ticket_any = (!stuff_tickets.is_empty()).into();
+            let ticket_any = stuff_tickets.iter().map(|t| match t.paid {
+                None => StuffState::Unknown,
+                Some(false) => StuffState::Unpaid,
+                Some(true) => StuffState::Paid,
+            }).max().unwrap_or(StuffState::No);
 
             let ticket_convention = stuff_tickets
                 .iter()

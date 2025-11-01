@@ -25,7 +25,7 @@ const select_sponsors = (paid = true, add = true) => {
 const select_avatar = (add = true) => {
     badge_rows().filter(tr => {
         let c = tr.children[7].className;
-        return add ? c == "Yes" : c == "No";
+        return c.indexOf(add ? "Yes" : "No") != -1;
     }).forEach(tr => get_checkbox(tr).forEach(cb => cb.checked = add));
     update_selected();
 }
