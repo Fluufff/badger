@@ -140,11 +140,15 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
                 .filter(|s| s.kind == "Ticket")
                 .collect::<Vec<_>>();
 
-            let ticket_any = stuff_tickets.iter().map(|t| match t.paid {
-                None => StuffState::Unknown,
-                Some(false) => StuffState::Unpaid,
-                Some(true) => StuffState::Paid,
-            }).max().unwrap_or(StuffState::No);
+            let ticket_any = stuff_tickets
+                .iter()
+                .map(|t| match t.paid {
+                    None => StuffState::Unknown,
+                    Some(false) => StuffState::Unpaid,
+                    Some(true) => StuffState::Paid,
+                })
+                .max()
+                .unwrap_or(StuffState::No);
 
             let ticket_convention = stuff_tickets
                 .iter()
@@ -170,15 +174,9 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
                 .map(|s| StuffState::from(**s))
                 .unwrap_or(StuffState::No);
 
-            let ticket_sat = stuff_tickets
+            let ticket_weekend = stuff_tickets
                 .iter()
-                .find(|stuff| stuff.name == "Day Ticket - Saturday")
-                .map(|s| StuffState::from(**s))
-                .unwrap_or(StuffState::No);
-
-            let ticket_sun = stuff_tickets
-                .iter()
-                .find(|stuff| stuff.name == "Day Ticket - Sunday")
+                .find(|stuff| stuff.name == "Day Ticket - Weekend")
                 .map(|s| StuffState::from(**s))
                 .unwrap_or(StuffState::No);
 
@@ -244,8 +242,7 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
                 ticket_wed,
                 ticket_thu,
                 ticket_fri,
-                ticket_sat,
-                ticket_sun,
+                ticket_weekend,
                 staff,
                 media,
                 avatar,

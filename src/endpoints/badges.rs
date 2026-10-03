@@ -134,11 +134,8 @@ impl BadgePDF {
                         LayerOpt::TicketFri => {
                             user.staff.is_no() && user.ticket_fri.is_no() == should_not
                         }
-                        LayerOpt::TicketSat => {
-                            user.staff.is_no() && user.ticket_sat.is_no() == should_not
-                        }
-                        LayerOpt::TicketSun => {
-                            user.staff.is_no() && user.ticket_sun.is_no() == should_not
+                        LayerOpt::TicketWeekend => {
+                            user.staff.is_no() && user.ticket_weekend.is_no() == should_not
                         }
                     };
                 }

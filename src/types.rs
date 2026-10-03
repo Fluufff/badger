@@ -51,8 +51,7 @@ pub enum LayerOpt {
     TicketWed,
     TicketThu,
     TicketFri,
-    TicketSat,
-    TicketSun,
+    TicketWeekend,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, sqlx::Type, strum::EnumIs)]
