@@ -134,7 +134,10 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
             let pronouns = u
                 .pronouns
                 .map(|p| serde_json::from_str::<Vec<String>>(&p).unwrap_or_default())
-                .unwrap_or_default();
+                .unwrap_or_default()
+                .into_iter()
+                .filter(|p| !p.is_empty())
+                .collect();
             let stuff = stuff
                 .iter()
                 .filter(|s| s.regnumber == u.regnumber)
