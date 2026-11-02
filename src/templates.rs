@@ -5,7 +5,7 @@ use crate::{
     types::{self, Stuff},
 };
 
-#[derive(strum::Display, Debug, strum::EnumIs, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, strum::Display, Debug, strum::EnumIs, PartialEq, Eq, PartialOrd, Ord)]
 pub enum StuffState {
     No,
     Paid,
@@ -35,9 +35,11 @@ impl From<bool> for BoolState {
     }
 }
 
+#[derive(Debug)]
 pub struct UserEntry {
     pub regnumber: i32,
     pub nickname: String,
+    pub pronouns: Vec<String>,
     pub ticket_any: StuffState,
     pub ticket_convention: StuffState,
     pub ticket_day: StuffState,
@@ -46,6 +48,9 @@ pub struct UserEntry {
     pub ticket_fri: StuffState,
     pub ticket_weekend: StuffState,
     pub sponsor: StuffState,
+    pub sponsor_1: StuffState,
+    pub sponsor_2: StuffState,
+    pub sponsor_3: StuffState,
     pub staff: BoolState,
     pub media: BoolState,
     pub avatar: String,

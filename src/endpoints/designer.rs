@@ -235,16 +235,30 @@ pub async fn post_handler(
                 match (
                     data.get("event_is"),
                     data.get("event_name"),
+                    data.get("event2_is"),
+                    data.get("event2_name"),
                     data.get("badge_type"),
                     data.get("title"),
                 ) {
-                    (Some(event_is), Some(event_name), Some(badge_type), Some(title)) => {
+                    (
+                        Some(event_is),
+                        Some(event_name),
+                        Some(event2_is),
+                        Some(event2_name),
+                        Some(badge_type),
+                        Some(title),
+                    ) => {
                         let event_is =
                             !matches!(event_is.to_lowercase().as_str(), "true" | "t" | "1");
                         let event_name = event_name.to_lowercase();
-                        sqlx::query("update layers set event_not=?, event=?, badge_type=?, title=? where id=?")
+                        let event2_is =
+                            !matches!(event2_is.to_lowercase().as_str(), "true" | "t" | "1");
+                        let event2_name = event2_name.to_lowercase();
+                        sqlx::query("update layers set event_not=?, event=?, event2_not=?, event2=?, badge_type=?, title=? where id=?")
                             .bind(event_is)
                             .bind(event_name)
+                            .bind(event2_is)
+                            .bind(event2_name)
                             .bind(badge_type)
                             .bind(title)
                             .bind(row)
@@ -257,11 +271,13 @@ pub async fn post_handler(
                 };
             }
             Some(s) if s == "add" => {
-                sqlx::query("insert into layers values (?, 'unknown', '', 'any', 0, 'any')")
-                    .bind(row)
-                    .execute(&state.db)
-                    .await
-                    .map_err(AppError::from)?;
+                sqlx::query(
+                    "insert into layers values (?, 'unknown', '', 'any', 0, 'any', 0, 'any')",
+                )
+                .bind(row)
+                .execute(&state.db)
+                .await
+                .map_err(AppError::from)?;
             }
             Some(s) => {
                 warn!(s, "invalid action")

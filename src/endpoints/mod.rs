@@ -131,6 +131,10 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
     let users = users
         .into_iter()
         .map(|u| {
+            let pronouns = u
+                .pronouns
+                .map(|p| serde_json::from_str::<Vec<String>>(&p).unwrap_or_default())
+                .unwrap_or_default();
             let stuff = stuff
                 .iter()
                 .filter(|s| s.regnumber == u.regnumber)
@@ -156,47 +160,76 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
                 .map(|s| StuffState::from(**s))
                 .unwrap_or(StuffState::No);
 
-            let ticket_wed = stuff_tickets
+            let mut ticket_wed = stuff_tickets
                 .iter()
                 .find(|stuff| stuff.name == "Day Ticket - Wednesday")
                 .map(|s| StuffState::from(**s))
                 .unwrap_or(StuffState::No);
 
-            let ticket_thu = stuff_tickets
+            let mut ticket_thu = stuff_tickets
                 .iter()
                 .find(|stuff| stuff.name == "Day Ticket - Thursday")
                 .map(|s| StuffState::from(**s))
                 .unwrap_or(StuffState::No);
 
-            let ticket_fri = stuff_tickets
+            let mut ticket_fri = stuff_tickets
                 .iter()
                 .find(|stuff| stuff.name == "Day Ticket - Friday")
                 .map(|s| StuffState::from(**s))
                 .unwrap_or(StuffState::No);
 
-            let ticket_weekend = stuff_tickets
+            let mut ticket_weekend = stuff_tickets
                 .iter()
                 .find(|stuff| stuff.name == "Day Ticket - Weekend")
                 .map(|s| StuffState::from(**s))
                 .unwrap_or(StuffState::No);
 
-            let ticket_day = stuff_tickets
+            let any_room = stuff.iter().any(|stuff| stuff.kind == "Room");
+
+            let ticket_day = match &ticket_convention {
+                StuffState::No => stuff
+                    .iter()
+                    .find(|stuff| stuff.name.starts_with("Day Ticket"))
+                    .map(|s| StuffState::from(*s))
+                    .unwrap_or(StuffState::No),
+                _ if any_room => StuffState::No,
+                s => {
+                    ticket_wed = s.clone();
+                    ticket_thu = s.clone();
+                    ticket_fri = s.clone();
+                    ticket_weekend = s.clone();
+                    s.clone()
+                }
+            };
+
+            let sponsors = stuff
                 .iter()
-                .find(|stuff| stuff.name.starts_with("Day Ticket"))
+                .filter(|stuff| stuff.regnumber == u.regnumber && stuff.name.contains("Sponsor"))
+                .collect::<Vec<_>>();
+
+            let sponsor_1 = sponsors
+                .iter()
+                .find(|stuff| stuff.name == "Tier 1 Sponsor")
                 .map(|s| StuffState::from(**s))
                 .unwrap_or(StuffState::No);
 
-            let sponsor = stuff
+            let sponsor_2 = sponsors
                 .iter()
-                .find(|stuff| stuff.regnumber == u.regnumber && stuff.name == "Sponsor Pack");
-            let sponsor = match sponsor {
-                None => StuffState::No,
-                Some(sponsor) => match sponsor.paid {
-                    None => StuffState::Unknown,
-                    Some(true) => StuffState::Paid,
-                    Some(false) => StuffState::Unpaid,
-                },
-            };
+                .find(|stuff| stuff.name == "Tier 2 Sponsor")
+                .map(|s| StuffState::from(**s))
+                .unwrap_or(StuffState::No);
+
+            let sponsor_3 = sponsors
+                .iter()
+                .find(|stuff| stuff.name == "Tier 3 Sponsor")
+                .map(|s| StuffState::from(**s))
+                .unwrap_or(StuffState::No);
+
+            let sponsor = [&sponsor_1, &sponsor_2, &sponsor_3]
+                .into_iter()
+                .max()
+                .unwrap_or(&StuffState::No)
+                .clone();
 
             let staff = stuff
                 .iter()
@@ -235,7 +268,11 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
             UserEntry {
                 regnumber: u.regnumber,
                 nickname: u.nick.unwrap_or_default(),
+                pronouns,
                 sponsor,
+                sponsor_1,
+                sponsor_2,
+                sponsor_3,
                 ticket_any,
                 ticket_convention,
                 ticket_day,

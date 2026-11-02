@@ -91,7 +91,7 @@
                 </td>
                 <td>{{ user.nickname }}</td>
                 <td class="{{ user.ticket_any.to_string() }}">{{ user.ticket_any.to_string() }}</td>
-                <td class="{{ user.sponsor.to_string() }}">{{ user.sponsor.to_string() }}</td>
+                <td class="{{ user.sponsor.to_string() }}">{% if user.sponsor_1.is_paid() %}1{% else if user.sponsor_2.is_paid() %}2{% else if user.sponsor_3.is_paid() %}3{% else %}{{ user.sponsor.to_string() }}{% endif %}</td>
                 <td class="{{ user.staff.to_string() }}">{{ user.staff.to_string() }}</td>
                 <td class="{{ user.has_avatar.to_string() }} red-no">{{ user.has_avatar.to_string() }}</td>
                 <td {% if user.fursuit_name.is_some() || user.fursuit_species.is_some() ||

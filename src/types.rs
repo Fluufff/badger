@@ -2,6 +2,8 @@ use printpdf::{Mm, Pt};
 use serde::{Deserialize, Serialize};
 use sqlx::MySqlPool;
 
+use crate::templates::UserEntry;
+
 #[derive(Clone)]
 pub struct AppState {
     pub db: MySqlPool,
@@ -19,6 +21,7 @@ pub struct User {
     // pub double_auth: Option<i32>,
     pub double_auth_secret: Option<String>,
     // pub locked: Option<String>,
+    pub pronouns: Option<String>,
 }
 
 #[derive(sqlx::FromRow, Debug)]
@@ -35,6 +38,8 @@ pub struct Layer {
 
     pub event: LayerOpt,
     pub event_not: bool,
+    pub event2: LayerOpt,
+    pub event2_not: bool,
     pub badge_type: BadgeOpt,
 }
 
@@ -44,14 +49,40 @@ pub enum LayerOpt {
     Any,
     Fursuit,
     Sponsor,
+    Sponsor1,
+    Sponsor2,
+    Sponsor3,
     Staff,
     Media,
     Ticket,
     TicketConvention,
+    TicketDay,
     TicketWed,
     TicketThu,
     TicketFri,
     TicketWeekend,
+}
+
+impl LayerOpt {
+    pub fn should(&self, user: &UserEntry, should_not: bool, add_media: bool) -> bool {
+        match self {
+            LayerOpt::Any => !should_not,
+            LayerOpt::Fursuit => false,
+            LayerOpt::Staff => user.staff.is_no() == should_not,
+            LayerOpt::Media => add_media,
+            LayerOpt::Sponsor => user.sponsor.is_no() == should_not,
+            LayerOpt::Sponsor1 => user.sponsor_1.is_no() == should_not,
+            LayerOpt::Sponsor2 => user.sponsor_2.is_no() == should_not,
+            LayerOpt::Sponsor3 => user.sponsor_3.is_no() == should_not,
+            LayerOpt::Ticket => user.ticket_any.is_no() == should_not,
+            LayerOpt::TicketConvention => user.ticket_convention.is_no() == should_not,
+            LayerOpt::TicketDay => user.ticket_day.is_no() == should_not,
+            LayerOpt::TicketWed => user.ticket_wed.is_no() == should_not,
+            LayerOpt::TicketThu => user.ticket_thu.is_no() == should_not,
+            LayerOpt::TicketFri => user.ticket_fri.is_no() == should_not,
+            LayerOpt::TicketWeekend => user.ticket_weekend.is_no() == should_not,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, sqlx::Type, strum::EnumIs)]
