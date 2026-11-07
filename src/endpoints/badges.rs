@@ -78,7 +78,7 @@ impl BadgePDF {
         let mut ops = Vec::new();
         for layer in self.layers.iter() {
             let mut should_print = layer.layer.badge_type.is_any();
-            if layer.layer.badge_type.is_con_ticket() && !user.ticket_convention.is_no() {
+            if layer.layer.badge_type.is_con_ticket() && !user.ticket_any.is_no() {
                 should_print = true;
             }
             if layer.layer.badge_type.is_day_ticket() && !user.ticket_day.is_no() {
