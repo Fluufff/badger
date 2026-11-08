@@ -181,6 +181,12 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
                 .map(|s| StuffState::from(**s))
                 .unwrap_or(StuffState::No);
 
+            let mut ticket_sat = stuff_tickets
+                .iter()
+                .find(|stuff| stuff.name == "Day Ticket - Saturday")
+                .map(|s| StuffState::from(**s))
+                .unwrap_or(StuffState::No);
+
             let mut ticket_weekend = stuff_tickets
                 .iter()
                 .find(|stuff| stuff.name == "Day Ticket - Weekend")
@@ -200,6 +206,7 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
                     ticket_wed = s.clone();
                     ticket_thu = s.clone();
                     ticket_fri = s.clone();
+                    ticket_sat = s.clone();
                     ticket_weekend = s.clone();
                     s.clone()
                 }
@@ -282,6 +289,7 @@ pub async fn get_users(db: &Pool<MySql>) -> Result<Vec<UserEntry>, AppError> {
                 ticket_wed,
                 ticket_thu,
                 ticket_fri,
+                ticket_sat,
                 ticket_weekend,
                 staff,
                 media,

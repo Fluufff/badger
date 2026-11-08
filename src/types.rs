@@ -60,6 +60,7 @@ pub enum LayerOpt {
     TicketWed,
     TicketThu,
     TicketFri,
+    TicketSat,
     TicketWeekend,
 }
 
@@ -80,6 +81,7 @@ impl LayerOpt {
             LayerOpt::TicketWed => user.ticket_wed.is_no() == should_not,
             LayerOpt::TicketThu => user.ticket_thu.is_no() == should_not,
             LayerOpt::TicketFri => user.ticket_fri.is_no() == should_not,
+            LayerOpt::TicketSat => user.ticket_sat.is_no() == should_not,
             LayerOpt::TicketWeekend => user.ticket_weekend.is_no() == should_not,
         }
     }

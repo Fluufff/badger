@@ -46,6 +46,7 @@ pub struct UserEntry {
     pub ticket_wed: StuffState,
     pub ticket_thu: StuffState,
     pub ticket_fri: StuffState,
+    pub ticket_sat: StuffState,
     pub ticket_weekend: StuffState,
     pub sponsor: StuffState,
     pub sponsor_1: StuffState,
